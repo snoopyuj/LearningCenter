@@ -1,0 +1,31 @@
+
+<% if current_user %>
+<h3>
+<ul>
+<% @courses.each do |course| %>
+	<li>
+	Course Name: <%= course.courseName %>
+        <%= link_to 'Information', :controller => 'courses', :action => 'info', :id => course %>
+	</li>
+<% end %>
+</h3>
+</ul>
+<br>
+<br>
+<h4>
+<%= link_to 'Download Course List', :controller => 'courses', :action => 'download_course_list' %>
+<br>
+<br>
+<%= form_tag @input, :url => { :controller => 'courses', :action => 'upload_course_list', :course_list => @input} do %>
+	<%= label_tag "Upload Course List" %>
+        <%= text_field_tag :course_list %>
+	<%= submit_tag "Update" %> 
+<% end %>
+</h4>
+
+     <%= link_to('Log out', destroy_user_session_path) %> |
+     <%= link_to('Change Password', edit_registration_path(:user)) %>
+<% else %>
+     <%= link_to('Sign up', new_registration_path(:user)) %> |
+     <%= link_to('Log in', new_session_path(:user)) %>
+<% end %>

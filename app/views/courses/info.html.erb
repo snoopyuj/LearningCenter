@@ -1,0 +1,10 @@
+<h3>
+<br>CourseID: <%= @course.courseID %></br>
+<br>CourseName: <%= @course.courseName %> </br>
+<br>CourseStatus: <%= @course.courseStatus %></br>
+<br>CourseURL: <a href="<%= @course.courseURL %>" target="_blank">Click Here!!</a></br>
+<br>CourseCurrent: <%= @course.courseCurrent %></br>
+<br>
+<br>
+<p><%= link_to 'Back to Course List', :controller => 'courses', :action => 'index' %>
+</h3>
