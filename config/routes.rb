@@ -1,5 +1,12 @@
 Elearning::Application.routes.draw do
-  devise_for :users
+  devise_for :users 
+
+  #authenticated :user do
+    #root :to => 'courses#index'
+  #end
+
+  root :to => "courses#index"
+  #root :to => 'homepage#index'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

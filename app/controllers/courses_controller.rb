@@ -1,6 +1,6 @@
 class CoursesController < ApplicationController
 
-    before_filter :authenticate_user!
+    #before_filter :authenticate_user!
     
     #method index: list the courses
     def index
@@ -43,4 +43,14 @@ class CoursesController < ApplicationController
             @course.save
         end
     end
+
+    def after_sign_in_path_for(resource)
+      redirect_to "140.115.53.92/courses"
+      #redirect_to :controller => :course, :action => :index
+    end
+
+    def after_sign_out_path_for(resource)
+      redirect_to "140.115.53.92/courses"
+    end
+
 end

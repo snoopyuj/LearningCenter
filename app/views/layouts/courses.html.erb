@@ -22,13 +22,14 @@
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-          <div class="container-fluid">
-          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">SCORMdroid</a>
+        <div class="container-fluid">
+        <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        
+        <a class="brand" href="#">SCORMdroid</a>
           <div class="container-fluid nav-collapse">
             <ul class="nav">
               <!--
@@ -38,10 +39,11 @@
               -->
             </ul>
           </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
+        </div><!--/brand-->
+      </div><!--/navbar-inner-->
+    </div><!--/navbar navbar-fixed-top-->
 
+<!-- Lab Picture -->
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span3">
@@ -52,11 +54,41 @@
                 <a href="#" class="thumbnail">
                   <img src="http://dl.dropbox.com/u/21602009/MINE_logo.png" alt="">
                 </a>
-              </div>
+              </div><!--/span2-->
               <br><br><br><br><br><br><br><br>
-            </div>
+            </div><!--/navbar-->
           </div><!--/.well -->
+          
+<!-- login -->
+         <div class="well sidebar-nav">
+           <div class="navbar">
+             <% if current_user %>
+               <%= link_to('Sign out', destroy_user_session_path) %>  |  
+               <%= link_to('Change Password', edit_registration_path(:user)) %>
+             <% else %>
+               <%= link_to('Sign in', new_session_path(:user)) %>  |  
+               <%= link_to('Sign up', new_registration_path(:user)) %>
+             <% end %>
+           </div><!--/navbar-->
+         </div><!--/well sidebar nav-->
 
+	<!--        
+          <div class="fill">
+            <div class="container">
+              <ul class="nav secondary-nav">
+              <% if user_signed_in? -%>
+                <li><%= link_to "Settings" , edit_user_registration_path  %></li>
+                <li><%= link_to "Logout", destroy_user_session_path , :method => :delete %></li>
+              <% else -%>
+                <li><%= link_to "Sign up", new_user_registration_path %></li>
+                <li><%= link_to "Sign in", new_user_session_path %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div> 
+        -->
+        <!-- /fill -->
+          <!--
           <form class="well form-inline">
             <input type="text" class="input-small" placeholder="Email">
             <input type="password" class="input-small" placeholder="Password">
@@ -65,13 +97,20 @@
             </label>
             <button type="submit" class="btn">Sign in</button>
           </form>
+          -->
 
-          <form class="well form-search">
-            <input type="text" class="input-medium search-query">
-            <button type="submit" class="btn">Search</button>
-          </form>
-
-        </div><!--/span-->
+<!-- Search -->
+        <div class="well sidebar-nav"> 
+          <div class = "navbar">
+            <form class="well form-search">
+             <input type="text" class="input-medium search-query">
+             <button type="submit" class="btn">Search</button>
+            </form>
+          </div><!--/navbar-->
+        </div><!--/well sidebar-nav-->
+     </div><!--/span3-->
+      
+<!-- Hero-Unit of Band-->
         <div class="span9">
 
           <div class="hero-unit">
@@ -82,15 +121,27 @@
             </ul>
           </div>
 
+<!-- Courses List -->
+        <% if user_signed_in? -%>
           <blockquote> 
             <h2>Courses List</h2>
           </blockquote>
 
           <%= yield %>
+          
+          <%= link_to "Sign out", destroy_user_session_path , :method => :delete %>  |  
+          <%= link_to "Change Password" , edit_user_registration_path  %>
+        <% else -%>
+          <h2>Please Sign in first!</h2>
+          <h3>If you do not have an account, please sign up one!</h3>
+          <%= link_to "Sign in", new_user_session_path %>  |  
+          <%= link_to "Sign up", new_user_registration_path %>
+        <% end %>
 
-        </div>
+      </div> 
       </div><!--/row-->
 
+<!-- Copy Right -->
       <footer>
         <p>&copy; NCU MINE Lab 2012</p>
       </footer>
