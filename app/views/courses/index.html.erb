@@ -1,4 +1,3 @@
-
 <h3>
   <ul>
   <% @courses.each do |course| %>
@@ -17,10 +16,10 @@
   <%= link_to 'Download Course List', :controller => 'courses', :action => 'download_course_list' %>
   <br>
   <br>
-  <%= form_tag @input, :url => { :controller => 'courses', :action => 'upload_course_list', :course_list => @input} do %>
+  <%= form_tag @input, :url => { :controller => 'courses', :action => 'upload_course_list', :course_list => @input } do %>
     <%= label_tag "Upload Course List" %>
-    <%= text_field_tag :course_list %>
-    <%= submit_tag "Update" %> 
+    <%= text_field_tag :couese_list %>
+    <%= submit_tag "Update" %>
   <% end %>
 </h4>
 
