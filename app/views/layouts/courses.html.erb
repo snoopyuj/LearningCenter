@@ -63,6 +63,7 @@
          <div class="well sidebar-nav">
            <div class="navbar">
              <% if current_user %>
+               <%= current_user.email %><br>
                <%= link_to('Sign out', destroy_user_session_path) %>  |  
                <%= link_to('Change Password', edit_registration_path(:user)) %>
              <% else %>
