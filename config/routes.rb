@@ -3,6 +3,7 @@ Elearning::Application.routes.draw do
     resources :courses
 
     #use get to handle the url like /courses/info/id
+<<<<<<< HEAD
     get '/course/info/:id' => 'courses#info', :as => 'info'
     #download_course_list
     get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
@@ -16,6 +17,14 @@ Elearning::Application.routes.draw do
 
   #Devise
     devise_for :users, :controller => { :registrations => 'registrations'}
+=======
+    get '/courses/info/:id' => 'courses#info', :as => 'info'
+
+    get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
+
+  #Devise
+    devise_for :users 
+>>>>>>> b582114897e2bd1a0b68edf74560daa4931fd52d
     #root for method after_sign_out
     root :to => "courses#index"
 
