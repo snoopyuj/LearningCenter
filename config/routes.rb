@@ -1,12 +1,23 @@
 Elearning::Application.routes.draw do
-  devise_for :users 
+  #RESTful
+    resources :courses
 
-  #authenticated :user do
-    #root :to => 'courses#index'
-  #end
+    #use get to handle the url like /courses/info/id
+    get '/course/info/:id' => 'courses#info', :as => 'info'
+    #download_course_list
+    get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
+    #upload_course_list
+    post '/course/upload_course_list/' => 'courses#upload_course_list', :as => 'upload_course_list'
 
-  root :to => "courses#index"
-  #root :to => 'homepage#index'
+  #for omniauth
+    resources :authentications
+
+    match 'auth/:provider/callback' => 'authentications#create'
+
+  #Devise
+    devise_for :users, :controller => { :registrations => 'registrations'}
+    #root for method after_sign_out
+    root :to => "courses#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -63,5 +74,5 @@ Elearning::Application.routes.draw do
 
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
-  match ':controller(/:action(/:id))(.:format)'
+  #match ':controller(/:action(/:id))(.:format)'
 end
