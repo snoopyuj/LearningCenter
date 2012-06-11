@@ -2,12 +2,9 @@ class User < ActiveRecord::Base
 
   has_many :user_course_relationships
   has_many :courses, :through => :user_course_relationships
-<<<<<<< HEAD
   
   #for omniauth
   has_many :authentications
-=======
->>>>>>> b582114897e2bd1a0b68edf74560daa4931fd52d
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable

@@ -16,17 +16,8 @@
   <%= link_to 'Download Course List', download_course_list_path %>
   <br>
   <br>
-<<<<<<< HEAD
   <%= form_tag upload_course_list_path do %>
     <%= text_field_tag :course_list %>
     <%= submit_tag "Uplaod" %>
-=======
-  <!--
-  <%= form_tag @input, :url => { :controller => 'courses', :action => 'upload_course_list', :course_list => @input } do %>
-    <%= label_tag "Upload Course List" %>
-    <%= text_field_tag :couese_list %>
-    <%= submit_tag "Update" %>
->>>>>>> b582114897e2bd1a0b68edf74560daa4931fd52d
   <% end %>
-  -->
 </h4>
