@@ -4,6 +4,7 @@
 <br>CourseStatus: <%= @course.courseStatus %></br>
 <br>CourseURL: <a href="<%= @course.courseURL %>" target="_blank">Click Here!!</a></br>
 <br>CourseCurrent: <%= @courseCurrent %></br>
+<%= button_to('View', view_course_path(:id=>@course.id, :first => "1"), :class => 'btn btn-primary') %>
 <br>
 <br>
 <p><%= link_to 'Back to Course List', courses_path %>

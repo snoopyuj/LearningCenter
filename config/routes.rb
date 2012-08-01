@@ -8,6 +8,8 @@ Elearning::Application.routes.draw do
     get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
     #upload_course_list
     post '/course/upload_course_list/' => 'courses#upload_course_list', :as => 'upload_course_list'
+    #view_course
+    match 'course/view_course/:id' => 'courses#view_course', :as => 'view_course'
 
   #for omniauth
     resources :authentications

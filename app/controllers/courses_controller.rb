@@ -57,15 +57,73 @@ class CoursesController < ApplicationController
         redirect_to courses_path
     end
 
+    #method parsed_resource: find out the imsmanifest.xml file
+    def view_course
+
+      require 'open-uri'
+
+      #find out the current course
+      @course = Course.find(params[ :id])
+      @user_id = User.find_by_email(current_user.email).id
+      @temp = UserCourseRelationship.find_by_user_id_and_course_id( @user_id, params[ :id])
+
+      #find out the imsmanifest file of the course
+      @uri = @course.courseURL + "imsmanifest.xml"
+      @imsmanifest = open(@uri).read
+      @doc = Nokogiri::XML(@imsmanifest)
+      @resources = @doc.css('//resources/resource')
+
+      #read_flag: to check the user is first time opening the course today or not
+      @read_flag = params[ :first]
+
+      #if it is the first time today
+      if @read_flag == "1" then
+        @index = "0"
+        #the user has comming once~
+        if @temp.courseCurrent != "none" then
+          @resources.each_with_index do |r, index|
+            if r['href'] == @temp.courseCurrent then
+              @index = index.to_s
+            end
+          end
+        end
+      end
+      #if it is not the first time today, it means the user is reading the course now
+      #so to handle next/previous page or suspend
+      if @read_flag == "0" then
+        #index: the index of the current page in the resources array
+        @index = params[ :index]
+        #go: command of next/previous page
+        @go = params[ :go]
+
+        #params[ :go] == 1 means go next page
+        if @go == "1" then
+          @index = (@index.to_i + 1).to_s
+        end
+        #params[ :go] == -1 means go previous page
+        if @go == "-1" then
+          @index = (@index.to_i - 1).to_s
+        end
+        #params[ :go] == 0 means suspend
+        if @go == "0" then
+          @temp.courseCurrent = @resources[@index.to_i]['href'].to_s
+          @temp.save
+
+          redirect_to courses_path
+        end
+      end
+    end
+
+
     #method after_sign_in_for: override the method in devise
     def after_sign_in_path_for(resource)
-      redirect_to "140.115.53.92/courses"
+      redirect_to courses_path
       #redirect_to :controller => :course, :action => :index
     end
 
     #method after_sign_out_for: override the method in devise
     def after_sign_out_path_for(resource)
-      redirect_to "140.115.53.92/courses"
+      redirect_to courses_path
     end
 
 end
