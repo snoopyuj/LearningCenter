@@ -14,7 +14,7 @@ Elearning::Application.routes.draw do
   #for omniauth
     resources :authentications
 
-    match '/auth/:provider/callback' => 'authentications#create'
+    match 'auth/:provider/callback' => 'authentications#create'
 
   #Devise
     devise_for :users, :controller => { :registrations => 'registrations'}
