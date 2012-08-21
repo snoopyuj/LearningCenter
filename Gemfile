@@ -43,7 +43,6 @@ gem 'therubyracer'
 gem 'twitter-bootstrap-rails'
 
 gem 'devise'
-
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'oauth2'

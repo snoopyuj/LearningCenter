@@ -60,7 +60,7 @@
            <div class="navbar">
              <% if current_user %>
                <%= current_user.email %><br>
-               <%= link_to('Sign out', destroy_user_session_path, :method => :delete) %>  |  
+               <%= link_to('Sign out', destroy_user_session_path, :method => :delete ) %>  |  
                <%= link_to('Change Password', edit_registration_path(:user)) %>
              <% else %>
                <%= link_to('Sign in', new_session_path(:user)) %>  |  
