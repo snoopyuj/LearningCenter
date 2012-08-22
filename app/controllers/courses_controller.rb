@@ -14,12 +14,7 @@ class CoursesController < ApplicationController
 
         #find out the courseCurrent of the course of the current user
         @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_id, :course_id => @course.courseID})
-
-        if @temp.empty?
-          @courseCurrent = "none"
-        else
-          @courseCurrent = @temp[0]["courseCurrent"]
-        end
+        @courseCurrent = @temp[0]["courseCurrent"]
     end
 
     #method download_course_list
@@ -34,12 +29,7 @@ class CoursesController < ApplicationController
         for i in 0...(@courses.length-1)
             @course = Course.find(i+1)
             @temp = UserCourseRelationship.all( :conditions => { :user_id => current_user.id, :course_id => @course.courseID})
-    
-            if @temp.empty?
-              @courseCurrent = "none"
-            else
-              @courseCurrent = @temp[0]["courseCurrent"]
-            end
+            @courseCurrent = @temp[0]["courseCurrent"]
 
             @course_list[i] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus, :courseURL => @course.courseURL, :courseCurrent => @courseCurrent }
         end
@@ -76,10 +66,6 @@ class CoursesController < ApplicationController
       @course = Course.find(params[ :id])
       @user_id = User.find_by_email(current_user.email).id
       @temp = UserCourseRelationship.find_by_user_id_and_course_id( @user_id, params[ :id])
-
-      if @temp.nil?
-        @temp = UserCourseRelationship.new( :user_id => @user_id, :course_id => params[ :id], :courseCurrent => "none")
-      end
 
       #find out the imsmanifest file of the course
       @uri = @course.courseURL + "imsmanifest.xml"
@@ -139,4 +125,5 @@ class CoursesController < ApplicationController
     def after_sign_out_path_for(resource)
       redirect_to courses_path
     end
+
 end
