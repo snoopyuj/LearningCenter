@@ -21,6 +21,13 @@ Elearning::Application.routes.draw do
     #root for method after_sign_out
     root :to => "courses#index"
 
+  #fb_graph
+    resources :facebook_activity
+    
+    #post_wall
+    post '/facebook_activity/post_wall' => 'facebook_activity#post_wall', :as => 'post_wall'
+    
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
