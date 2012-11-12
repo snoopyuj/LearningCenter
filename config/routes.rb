@@ -26,6 +26,8 @@ Elearning::Application.routes.draw do
     
     #post_wall
     post '/facebook_activity/post_wall' => 'facebook_activity#post_wall', :as => 'post_wall'
+    #action_wall
+    post 'facebook_activity/action_wall' => 'facebook_activity#action_wall', :as => 'action_wall'
     
 
   # The priority is based upon order of creation:

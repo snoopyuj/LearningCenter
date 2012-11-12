@@ -17,8 +17,31 @@
     <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="images/apple-touch-icon-72x72.png" rel="apple-touch-icon" sizes="72x72">
     <link href="images/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114">
+
+    
+<!-- meta tag of facebook object -->
+    <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# litopon_lms: http://ogp.me/ns/fb/litopon_lms#">
+      <meta property="fb:app_id" content="373518166042529" />
+      <meta property="og:type"   content="litopon_lms:course" />
+      <meta property="og:url"    content="http://litopon.mine.csie.ncu.edu.tw/courses" />
+      <meta property="og:title"  content="Course 1" />
+      <meta property="og:image"  content="https://s-static.ak.fbcdn.net/images/devsite/attachment_blank.png" />
+
   </head>
   <body>
+
+<!-- FB Like Button JavaScript -->
+    <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=373518166042529";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- End of Like Button JavaScript -->
+
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -125,6 +148,7 @@
             </ul>
           </div>
 
+
 <!-- Courses List -->
         <% if user_signed_in? -%>
           <blockquote> 
@@ -141,6 +165,9 @@
           <%= link_to "Sign in", new_user_session_path %>  |  
           <%= link_to "Sign up", new_user_registration_path %>
         <% end %>
+        <br>
+<!-- Facebook Like Button -->
+        <div class="fb-like" data-href="http://litopon.mine.csie.ncu.edu.tw/courses" data-send="true" data-width="450" data-show-faces="true" data-font="arial"></div>
 
       </div> 
       </div><!--/row-->
