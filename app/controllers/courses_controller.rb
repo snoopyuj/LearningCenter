@@ -4,11 +4,7 @@ class CoursesController < ApplicationController
     
     #method index: list the courses
     def index
-      @courses = Course.all
-      
-      if current_user
-        @user = User.find_by_email(current_user.email)    
-      end
+        @courses = Course.all
     end
     
     #method show: show the specific course
@@ -130,20 +126,6 @@ class CoursesController < ApplicationController
           redirect_to courses_path
         end
       end
-    end
-
-    #progress_monitor: let teacher get learning of all students
-    def progress_monitor_by_course
-      @courses = Course.all
-      @users =  User.all
-      @relations = UserCourseRelationship.all 
-    end
-
-    #progress_monitor: let teacher get learning of all students
-    def progress_monitor_by_user
-      @user = User.find_by_email(params[ :search])
-      @courses = Course.all
-      @relations = UserCourseRelationship.all	
     end
 
 
