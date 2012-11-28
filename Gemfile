@@ -50,3 +50,5 @@ gem 'oauth2'
 gem 'nokogiri'
 
 gem 'fb_graph'
+
+gem 'less-rails'
