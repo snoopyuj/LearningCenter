@@ -1,26 +1,23 @@
-<% if current_user %>
-<% if @user.role == 1 %>
-  <h2>I am a Teacher</h2><br>
-  <h3>
-    <li>Course Management
-      <%= button_to('GO!', progress_monitor_by_course_path(), :class => 'btn btn-primary') %>
+<h3>
+  <ul>
+  <% @courses.each do |course| %>
+    <li>
+      Course Name: <%= course.courseName %>
+      <%= link_to 'Information', info_path( :id => course) %>
     </li>
-    <li>Authoring Tools <%= button_to('GO!', :class => 'btn btn-primary')%></li>
-    <li>Progress Monitor <%= button_to('GO!', :class => 'btn btn-primary')%></li>
-  </h3>
-
+  <% end %>
+  </ul>
+</h3>
+ 
 <br>
-<% else %>
-  <h3>
-    <ul>
-    <% @courses.each do |course| %>
-      <li>
-        Course Name: <%= course.courseName %>
-        <%= link_to 'Information', info_path( :id => course) %>
-      </li>
-    <% end %>
-    </ul>
-  </h3>
-<% end %>
+<br>
 
-<% end %>
+<h4>
+  <%= link_to 'Download Course List', download_course_list_path %>
+  <br>
+  <br>
+  <%= form_tag upload_course_list_path do %>
+    <%= text_field_tag :course_list %>
+    <%= submit_tag "Uplaod" %>
+  <% end %>
+</h4>
