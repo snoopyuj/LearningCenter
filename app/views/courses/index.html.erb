@@ -1,23 +1,27 @@
-<h3>
-  <ul>
-  <% @courses.each do |course| %>
-    <li>
-      Course Name: <%= course.courseName %>
-      <%= link_to 'Information', info_path( :id => course) %>
-    </li>
-  <% end %>
-  </ul>
-</h3>
- 
-<br>
-<br>
+<% if current_user %>
+  <% if @user.role == 1 %>
+    <h2>I am a Teacher</h2><br>
+    <h3>
+      <li>Progress Monitor <%= button_to('GO!', progress_monitor_by_course_path(), :class => 'btn btn-primary') %></li>
+      <li>Authoring Tools <%= button_to('GO!', :class => 'btn btn-primary')%></li>
+      <li>Course Management <%= button_to('GO!', :class => 'btn btn-primary')%></li>
+    </h3>
 
-<h4>
-  <%= link_to 'Download Course List', download_course_list_path %>
-  <br>
-  <br>
-  <%= form_tag upload_course_list_path do %>
-    <%= text_field_tag :course_list %>
-    <%= submit_tag "Uplaod" %>
+    <br>
+
+  <% else %>
+    <h3>
+      <ul>
+        <% @courses.each do |course| %>
+          <li>
+            Course Name: <%= course.courseName %> <%= link_to 'Information', info_path( :id => course) %>
+          </li>
+        <% end %>
+      </ul>
+    </h3>
+
+    <br>
+
+    <%= button_to('Get Friends!', get_fb_friends_path(), :class => 'btn btn-primary') %>
   <% end %>
-</h4>
+<% end %>

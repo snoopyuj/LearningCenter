@@ -1,0 +1,20 @@
+<% @courses.each do |course| %>
+  <h3><li>CourseID: <%= course.courseID %>, CourseName: <%= course.courseName %></li></h3><br>
+  <% @users.each do |user| %>
+    <% @find_flag = false %>
+    User ID: <%= user.id %> = 
+    <% @relations.each do |relation| %>
+      <% if relation.course_id == course.courseID && relation.user_id == user.id %>
+        <%= relation.courseCurrent %><br>
+        <% @find_flag = true %>
+      <% end %>
+    <% end %>
+    <% if @find_flag == false %>
+      none<br>
+    <% end %>
+  <% end %>
+<% end %>
+<br>
+<%= button_to('By User', progress_monitor_by_user_path, :class => 'btn btn-primary') %>
+<p><%= link_to 'Back to Home Page', courses_path %>
+<br>

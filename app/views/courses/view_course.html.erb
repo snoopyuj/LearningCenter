@@ -1,0 +1,14 @@
+<br><iframe src = "<%= @course.courseURL + @resources[@index.to_i]['href']  %>" id = "view" width = "100%" height = "450" /></iframe><br />
+
+<table border=0 align="center">
+  <tr>
+    <td><%= button_to "Previous Page", { :controller => 'courses', :action => 'view_course', :first => "0", :index => @index, :go => -1 } %></td>
+    <td><%= button_to "Next Page",  { :controller => 'courses', :action => 'view_course', :first => "0", :index => @index, :go => 1 } %></td>
+    <td></td>
+    <td><%= button_to "Suspend", { :controller => 'courses', :action => 'view_course', :first => "0", :index => @index, :go => 0 } %></td>
+    <td><%= button_to "Post", post_wall_path %></td>
+    <td><%= button_to "Action", action_wall_path %></td>
+  </tr>
+</table>
+
+<p><%= link_to 'Back to Course List', courses_path %><br>

@@ -1,5 +1,7 @@
 class User < ActiveRecord::Base
 
+  serialize :friend, Array #store friends in array structure
+
   has_many :user_course_relationships
   has_many :courses, :through => :user_course_relationships
   

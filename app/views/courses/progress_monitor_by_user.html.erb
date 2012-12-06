@@ -1,0 +1,26 @@
+<%= form_tag progress_monitor_by_user_path do %>
+  <%= text_field_tag :search %>
+  <%= submit_tag "Search" %>
+<% end %>
+<br>
+
+<% if @user %>
+  <% @courses.each do |course| %>
+    <% find_flag = false %>
+    <% @relations.each do |relation| %>
+      <% if relation.course_id ==course.courseID && relation.user_id == @user.id %>
+        Course ID = <%= course.courseID %>, <%= relation.courseCurrent %><br>
+        <% find_flag = true %>
+      <% end %>
+    <% end %>
+    <% if find_flag == false %>
+      Course ID = <%= course.courseID %>, none<br>
+    <% end %>
+  <% end %>
+<% end %>
+<br>
+<%= button_to('By Course', progress_monitor_by_course_path, :class => 'btn btn-primary') %>
+<p><%= link_to 'Back to Home Page', courses_path %>
+<br>
+
+

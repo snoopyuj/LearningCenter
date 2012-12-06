@@ -10,6 +10,10 @@ Elearning::Application.routes.draw do
     post '/course/upload_course_list/' => 'courses#upload_course_list', :as => 'upload_course_list'
     #view_course
     match 'course/view_course/:id' => 'courses#view_course', :as => 'view_course'
+    #progress_monitor_by_course
+    match 'course/progress_monitor_by_course' => 'courses#progress_monitor_by_course', :as => 'progress_monitor_by_course'
+    #progress_monitor_by_user
+    match 'course/progress_monitor_by_user' => 'courses#progress_monitor_by_user', :as => 'progress_monitor_by_user'
 
   #for omniauth
     resources :authentications
@@ -28,6 +32,8 @@ Elearning::Application.routes.draw do
     post '/facebook_activity/post_wall' => 'facebook_activity#post_wall', :as => 'post_wall'
     #action_wall
     post 'facebook_activity/action_wall' => 'facebook_activity#action_wall', :as => 'action_wall'
+    #get_fb_friends
+    match 'facebook_activity/get_fb_friends' => 'facebook_activity#get_fb_friends', :as => 'get_fb_friends'
     
 
   # The priority is based upon order of creation:
