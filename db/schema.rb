@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121206075923) do
+ActiveRecord::Schema.define(:version => 20130107072503) do
 
   create_table "authentications", :force => true do |t|
     t.integer  "user_id"
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(:version => 20121206075923) do
     t.datetime "updated_at",                             :null => false
     t.integer  "role"
     t.text     "friend"
+    t.string   "fb_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

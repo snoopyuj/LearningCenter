@@ -31,11 +31,11 @@ class CoursesController < ApplicationController
         ActiveRecord::Base.include_root_in_json = true
 
         @courses = Course.all
-        @course_list = Array.new([1...@courses.length])
+        @course_list = Array.new(@courses.length)
         
         # find the course object and store the attributes in the course_list array
         # each cell of the course_list array represents a course
-        for i in 0...(@courses.length-1)
+        for i in 0...(@courses.length)
             @course = Course.find(i+1)
             @temp = UserCourseRelationship.all( :conditions => { :user_id => current_user.id, :course_id => @course.courseID})
              
