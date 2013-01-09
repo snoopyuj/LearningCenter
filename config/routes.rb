@@ -26,6 +26,9 @@ Elearning::Application.routes.draw do
     root :to => "courses#index"
 
   #fb_graph
+    #send_data_to_3D
+    match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+
     resources :facebook_activity
     
     #post_wall
@@ -35,7 +38,7 @@ Elearning::Application.routes.draw do
     #get_fb_friends
     match 'facebook_activity/get_fb_friends' => 'facebook_activity#get_fb_friends', :as => 'get_fb_friends'
     #send_data_to_3D
-    match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+    #match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
     
 
   # The priority is based upon order of creation:

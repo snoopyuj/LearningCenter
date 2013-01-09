@@ -53,14 +53,15 @@ class FacebookActivityController < ApplicationController
   def send_data_to_3D
     ActiveRecord::Base.include_root_in_json = true
 
-    @user = User.find_by_email( current_user.email )
+    #@user = User.find_by_email( current_user.email )
+    @user = User.find_by_fb_id( 100003952381304 )
     @courses = Course.all
-    @course_list = Array.new([1...@courses.length])
+    @course_list = Array.new([@courses.length])
 
     #find out the current user and his learning progress
-    for i in 0...(@courses.length-1)
+    for i in 0...(@courses.length)
       @course = Course.find(i+1)
-      @temp = UserCourseRelationship.all( :conditions => { :user_id => current_user.id, :course_id => @course.courseID} )
+      @temp = UserCourseRelationship.all( :conditions => { :user_id => @user.id, :course_id => @course.courseID} )
 
       if @temp.empty?
         @courseCurrent = "none"
@@ -98,7 +99,8 @@ class FacebookActivityController < ApplicationController
     end
 
     #make a json object with the course_list array
-    @json_object = ActiveSupport::JSON.encode( {  :userID => current_user.email, :course_list => @course_list, :friend_list => @friend_list  } )
+    @json_object = ActiveSupport::JSON.encode( {  :userID => @user.email, :course_list => @course_list, :friend_list => @friend_list  } )
+
 
     #method send_data: send a streaming data to client, and :disposition determines the type of file(attachment file or inline file)
     send_data @json_object, :type => "application/json", :disposition => "inline"
