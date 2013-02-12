@@ -57,6 +57,70 @@ class FacebookActivityController < ApplicationController
     @user = User.find_by_fb_id( 100003952381304 )
     @courses = Course.all
     @course_list = Array.new([@courses.length])
+    @courses_tree = Array.new()
+
+    #find out the course tree
+    @courses.each_with_index do |c, index|
+      require 'open-uri'
+
+      #find out the imsmanifest file and parse the organization/item part
+      @course = Course.find( c.id )
+      @uri = @course.courseURL + "imsmanifest.xml"
+      @imsmanifest = open(@uri).read
+      @doc = Nokogiri::XML(@imsmanifest)
+      @modules = @doc.css('//organizations/organization/item')
+      @resources = @doc.css('//resources/resource')
+
+      #store the parsed data in to an array
+      @course_tree = Array.new()
+      @index = 0
+
+      @modules.each_with_index do |m, i|
+        @lesson_tree = Array.new()
+        @lessons = m.css('/item')
+        @file = "none"
+        #if there is no child under the item
+        if @lessons.empty?
+          @resources.each do |r|
+            if r['identifier'] == m['identifierref']
+              @file = r['href']
+            end
+            #check this lesson is read or not
+            @read_flag = false
+            @history = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => @course.id, :lesson => @file } )
+            if @history.empty?
+              @read_flag = false
+            else
+              @read_flag = true
+            end
+
+            @course_tree[i] = { :module_name => m.css('/title').text, :lesson_tree => @lesson_tree, :lesson_file => @file, :read_flag => @read_flag }
+          end
+        #if there is child under the item
+        else
+          @lessons.each_with_index do |l, j|
+            @temp = l.css('/title')
+            @resources.each do |r|
+              if r['identifier'] == l['identifierref']
+                @file = r['href']
+              end
+              #check this lesson is read or not
+              @read_flag = false
+              @history = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => @course.id, :lesson => @file } )
+              if @history.empty?
+                @read_flag = false
+              else
+                @read_flag = true
+              end
+
+              @lesson_tree[j] = { :lesson_name => @temp.text, :lesson_file => @file, :read_flag => @read_flag }
+            end
+          end
+          @course_tree[i] = { :module_name => m.css('/title').text, :lesson_tree => @lesson_tree }
+        end
+      end
+      @courses_tree[index] = @course_tree
+    end
 
     #find out the current user and his learning progress
     for i in 0...(@courses.length)
@@ -69,7 +133,8 @@ class FacebookActivityController < ApplicationController
         @courseCurrent = @temp[0]["courseCurrent"]
       end
 
-      @course_list[i] =  { :courseName => @course.courseName, :courseCurrent => @courseCurrent }
+      @course_list[i] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
+                           :courseURL => @course.courseURL, :courseCurrent => @courseCurrent, :courseTree => @courses_tree[i] }
     end
 
     #find out the current user's friend and their learning progress
@@ -83,7 +148,7 @@ class FacebookActivityController < ApplicationController
       #find out the current user's friend's learning progress
       for j in 0...(@courses.length)
         @course = Course.find(j+1)
-        @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_friend.id, :course_id => @course.courseID } )
+        @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_friend.id, :course_id => @course.id } )
 
         if @temp.empty?
           @courseCurrent = "none"
@@ -91,7 +156,8 @@ class FacebookActivityController < ApplicationController
           @courseCurrent = @temp[0]["courseCurrent"]
         end
       
-        @friend_course_list[j] =  { :courseName => @course.courseName, :courseCurrent => @courseCurrent }
+        @friend_course_list[j] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
+                                    :courseURL => @course.courseURL,:courseCurrent => @courseCurrent }
       end
 
       #store each friend's information and learning progress in friend_list array

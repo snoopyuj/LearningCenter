@@ -4,6 +4,10 @@ class User < ActiveRecord::Base
 
   has_many :user_course_relationships
   has_many :courses, :through => :user_course_relationships
+
+  has_many :user_learning_histories
+  has_many :courses, :through => :user_learning_histories
+
   
   #for omniauth
   has_many :authentications

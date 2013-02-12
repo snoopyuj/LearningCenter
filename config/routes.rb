@@ -4,16 +4,22 @@ Elearning::Application.routes.draw do
 
     #use get to handle the url like /courses/info/id
     get '/course/info/:id' => 'courses#info', :as => 'info'
+    #parse_lesson_tree
+    match 'course/parse_lesson_tree' => 'courses#parse_lesson_tree', :as => 'parse_lesson_tree'
+    #parse_lesson_tree_test
+    match 'course/parse_lesson_tree_test' => 'courses#parse_lesson_tree_test', :as => 'parse_lesson_tree_test'
     #download_course_list
     get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
     #upload_course_list
     post '/course/upload_course_list/' => 'courses#upload_course_list', :as => 'upload_course_list'
     #view_course
     match 'course/view_course/:id' => 'courses#view_course', :as => 'view_course'
+    #get_learning_history
+    match '/course/learning_history' => 'courses#learning_history', :as => 'learning_history'
     #progress_monitor_by_course
-    match 'course/progress_monitor_by_course' => 'courses#progress_monitor_by_course', :as => 'progress_monitor_by_course'
+    match '/course/progress_monitor_by_course' => 'courses#progress_monitor_by_course', :as => 'progress_monitor_by_course'
     #progress_monitor_by_user
-    match 'course/progress_monitor_by_user' => 'courses#progress_monitor_by_user', :as => 'progress_monitor_by_user'
+    match '/course/progress_monitor_by_user' => 'courses#progress_monitor_by_user', :as => 'progress_monitor_by_user'
 
   #for omniauth
     resources :authentications
