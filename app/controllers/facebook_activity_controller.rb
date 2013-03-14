@@ -31,6 +31,7 @@ class FacebookActivityController < ApplicationController
     )
   end
 
+
   #method get_fb_friends: get the user's friends and store in the user table
   def get_fb_friends
 
@@ -40,17 +41,97 @@ class FacebookActivityController < ApplicationController
     me = FbGraph::User.me( @authentication.token )
     @data = me.friends
     @friends = Array.new()
+    @close_friends = Array.new()
+
+    #get the close friend list
+    @close_friend_url = HTTParty.get('https://graph.facebook.com/me/friendlists?access_token=' + @authentication.token )
+    @close_friend_list_id = @close_friend_url['data'][2]['id']
+    @close_friend_list = HTTParty.get('https://graph.facebook.com/' + @close_friend_list_id + '/members?access_token=' + @authentication.token )
+
+    #store close friend
+    @close_friend_list['data'].each_with_index do |cf, index|
+      @close_friends[index] = cf['id']
+    end
 
     for i in 0...(@data.length)
-      @friends[i] = { :name => @data[i].raw_attributes['name'], :uid => @data[i].raw_attributes['id'] }
+      @close_flag = false
+      #check the friend is close friend or not
+      @close_friends.each do |cf|
+        if @data[i].raw_attributes['id'] == cf
+          @close_flag = true
+        end
+      end
+      #store the friend data
+      @friends[i] = { :name => @data[i].raw_attributes['name'], :uid => @data[i].raw_attributes['id'], :close_friend => @close_flag }
     end
 
     @user = User.find( @user_id )
     @user.friend = @friends
     @user.save
   end
-  
+
   def send_data_to_3D
+    @user = User.find_by_fb_id( 100003952381304 )
+    @courses = Course.all
+    @course_list = Array.new([@courses.length])
+
+    #find out the current user's learning progress and learning history  
+    for i in 0...@courses.length
+      next if @courses[i].nil?
+      #get learning history
+      get_read_flag( @user.id, @courses[i].id, @courses[i].course_tree )
+
+      #get learning progress
+      @temp = UserCourseRelationship.all( :conditions => { :user_id => @user.id, :course_id => @courses[i].id } )
+      if @temp.empty?
+        @courses[i].courseCurrent = "none"
+      else
+        @courses[i].courseCurrent = @temp[0]["courseCurrent"]
+      end
+    end
+
+    #find out the current user's friend and their learning progress
+    @friend_list = Array.new([@user.friend.length])
+    @friend_course_list = Array.new([@courses.length])
+    @index_friend = 0
+    for i in 0...(@user.friend.length)
+      #find out the current user's friend
+      @uid = @user.friend[i][ :uid]
+      @user_friend = User.find_by_fb_id( @uid )
+      next if @user_friend.nil?
+
+      #find out the current user's friend's learning progress
+      @index_course = 0
+      for j in 0...(@courses.length)
+        @course = Course.find_by_id(j+1)
+        next if @course.nil?
+        @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_friend.id, :course_id => @course.courseID } )
+
+        if @temp.empty?
+          @courseCurrent = "none"
+        else
+          @courseCurrent = @temp[0]["courseCurrent"]
+        end
+
+        @friend_course_list[@index_course] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
+                                                :courseURL => @course.courseURL,:courseCurrent => @courseCurrent }
+        @index_course += 1
+      end
+
+      #store each friend's information and learning progress in friend_list array
+      @friend_list[@index_friend] = { :friendID => @user_friend.email, :close_friend => @user.friend[i][ :close_friend],
+                                      :friend_course_list => @friend_course_list }
+      @index_friend += 1
+    end
+
+    #make a json object with the course_list array
+    @json_object = ActiveSupport::JSON.encode( {  :userID => @user.email, :course_list => @courses, :friend_list => @friend_list  } )
+
+
+    render :json => @json_object
+  end
+    
+  def send_data_to_3D_test
     ActiveRecord::Base.include_root_in_json = true
 
     #@user = User.find_by_email( current_user.email )
@@ -124,7 +205,8 @@ class FacebookActivityController < ApplicationController
 
     #find out the current user and his learning progress
     for i in 0...(@courses.length)
-      @course = Course.find(i+1)
+      @course = Course.find_by_id(i+1)
+      next if @course.nil?
       @temp = UserCourseRelationship.all( :conditions => { :user_id => @user.id, :course_id => @course.courseID} )
 
       if @temp.empty?
@@ -140,15 +222,19 @@ class FacebookActivityController < ApplicationController
     #find out the current user's friend and their learning progress
     @friend_list = Array.new([@user.friend.length])
     @friend_course_list = Array.new([@courses.length])
+    @index_friend = 0
     for i in 0...(@user.friend.length)
       #find out the current user's friend
       @uid = @user.friend[i][ :uid]
       @user_friend = User.find_by_fb_id( @uid )
+      next if @user_friend.nil?
 
       #find out the current user's friend's learning progress
+      @index_course = 0
       for j in 0...(@courses.length)
-        @course = Course.find(j+1)
-        @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_friend.id, :course_id => @course.id } )
+        @course = Course.find_by_id(j+1) 
+        next if @course.nil?
+        @temp = UserCourseRelationship.all( :conditions => { :user_id => @user_friend.id, :course_id => @course.courseID } )
 
         if @temp.empty?
           @courseCurrent = "none"
@@ -156,12 +242,15 @@ class FacebookActivityController < ApplicationController
           @courseCurrent = @temp[0]["courseCurrent"]
         end
       
-        @friend_course_list[j] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
-                                    :courseURL => @course.courseURL,:courseCurrent => @courseCurrent }
+        @friend_course_list[@index_course] =  { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
+                                                :courseURL => @course.courseURL,:courseCurrent => @courseCurrent }
+        @index_course += 1
       end
 
       #store each friend's information and learning progress in friend_list array
-      @friend_list[i] = { :friendID => @user_friend.email, :friend_course_list => @friend_course_list }
+      @friend_list[@index_friend] = { :friendID => @user_friend.email, :close_friend => @user.friend[i][ :close_friend], 
+                                      :friend_course_list => @friend_course_list }
+      @index_friend += 1
     end
 
     #make a json object with the course_list array

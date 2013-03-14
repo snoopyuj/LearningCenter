@@ -52,3 +52,7 @@ gem 'nokogiri'
 gem 'fb_graph'
 
 gem 'less-rails'
+
+gem 'scorm2004-manifest'
+
+gem 'httparty'

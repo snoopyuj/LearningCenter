@@ -6,5 +6,5 @@ class Course < ActiveRecord::Base
   has_many :users, :through => :user_learning_histories
 
 
-  serialize :course_tree, Array #store course structure in an array
+  serialize :course_tree, Array #store course structure in a hash
 end

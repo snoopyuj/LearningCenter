@@ -26,81 +26,51 @@ class CoursesController < ApplicationController
         end
     end
 
-    #method parse_lesson_list: parse the activity tree of the course
-    def parse_lesson_tree
-      require 'open-uri'
-      #find out the course tree
+    #parse the course structure
+    def parse_course_tree
 
       #find out the imsmanifest file and parse the organization/item part
       @course = Course.find( params[ :id] )
       @uri = @course.courseURL + "imsmanifest.xml"
-      @imsmanifest = open(@uri).read
-      @doc = Nokogiri::XML(@imsmanifest)
-      @modules = @doc.css('//organizations/organization/item')
-      @resources = @doc.css('//resources/resource')
 
-      #store the parsed data in to an array
-      @course_tree = Array.new()
-      @index = 0
+      #use gem scorm2004-manifest to parse the course tree
+      require 'scorm2004-manifest'
 
-      @modules.each_with_index do |m, i|
-        @lesson_tree = Array.new()
-        @lessons = m.css('/item')
-        @file = "none"
-        #if there is no child under the item
-        if @lessons.empty?
-          @resources.each do |r|
-            if r['identifier'] == m['identifierref']
-              @file = r['href']
-            end
-            @course_tree[i] = { :module_name => m.css('/title').text, :lesson_tree => @lesson_tree, :lesson_file => @file }
-          end
-        #if there is child under the item
-        else
-          @lessons.each_with_index do |l, j|
-            @temp = l.css('/title')
-            @resources.each do |r|
-              if r['identifier'] == l['identifierref']
-                @file = r['href']
-              end
-              @lesson_tree[j] = { :lesson_name => @temp.text, :lesson_file => @file }
-            end
-          end
-          @course_tree[i] = { :module_name => m.css('/title').text, :lesson_tree => @lesson_tree }
-        end
+      begin
+        @manifest = Scorm2004::Manifest( open( @uri ) )
+        rescue Scorm2004::Manifest::Error => e
       end
-      @course.course_tree = @course_tree
+
+      @organizations = @manifest.organizations
+      @organization = @organizations.organizations[0]
+      @resources = @manifest.resources.resources
+
+      #call parse_node to parse the imsmanifest.xml and get the course structure
+      @result = parse_node( @organization, @resources )
+      @course.course_tree = @result
       @course.save
-      @json_object = ActiveSupport::JSON.encode( { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus, 
-                                                   :courseURL => @course.courseURL, :courseTree => @course_tree } )
-      render :json => @json_object
-      #send_data @json_object, :type => "application/json", :disposition => "inline"
+
+      render :json => @result
     end
 
-    #test for recursive way
-    def parse_lesson_tree_test
+    #parse_course_tree_general_version
+    def parse_course_tree_general_version
       require 'open-uri'
-      #find out the course tree
 
-      #find out the imsmanifest file and parse the organization/item part
       @course = Course.find( params[ :id] )
       @uri = @course.courseURL + "imsmanifest.xml"
       @imsmanifest = open(@uri).read
       @doc = Nokogiri::XML(@imsmanifest)
-      @modules = @doc.css('//organizations/organization/item')
+      @organization = @doc.css('//organizations/organization')
       @resources = @doc.css('//resources/resource')
 
-      @course_tree = Array.new()
-      #store the parsed data in to an array
-      @modules.each_with_index do |m, index|
-        @course_tree[index] = parse_node( m )
-      end
-      render :json => @course_tree
-      #@json_object = ActiveSupport::JSON.encode( { :courseID => @course.courseID, :courseName => @course.courseName, :courseStatus => @course.courseStatus,
-      #                                             :courseURL => @course.courseURL, :courseTree => @course_tree } )
-      #send_data @json_object, :type => "application/json", :disposition => "inline"
-    end
+      #call parse_node_general_version to parse the imsmanifest.xml and get the course structure
+      @result = parse_node_general_version( @organization, @resources )
+      @course.course_tree = @result
+      @course.save
 
+      render :json => @result
+    end
 
     #method download_course_list
     def download_course_list
@@ -215,7 +185,7 @@ class CoursesController < ApplicationController
     end
 
     #get_learning_history
-    def learning_history
+    def calculate_similarity
       @users = User.all
       @user = User.find_by_email( current_user.email )
       @course_tree = Course.find( params[ :id] ).course_tree
@@ -230,12 +200,12 @@ class CoursesController < ApplicationController
         @lesson_counter = 0
 
         @course_tree.each do |ct|
-          if ct[ :lesson_tree].is_a? Array
-            ct[ :lesson_tree].each do |lt|
+          if ct[ :node_items].is_a? Array
+            ct[ :node_items].each do |lt|
               @lesson_counter += 1
 
-              @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => lt[ :lesson_file] } )
-              @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => lt[ :lesson_file] } )
+              @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => lt[ :node_file] } )
+              @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => lt[ :node_file] } )
 
               #if the user has taken the course before
               if !@history_user.empty?
@@ -254,8 +224,8 @@ class CoursesController < ApplicationController
           else
             @lesson_counter += 1
 
-            @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => ct[ :lesson_file] } )
-            @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => ct[ :lesson_file] } )
+            @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => ct[ :node_file] } )
+            @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => ct[ :node_file] } )
 
             #if the user has taken the course before
             if !@history_user.empty?
@@ -282,12 +252,56 @@ class CoursesController < ApplicationController
           @mi = 0
         end
         #store the similartiy in the array
+        @users_similarity[index] = { :lesson_counter => @lesson_counter,
+                                     :user_name => @user.email, :flag_user => @flag_user, :px => @px,
+                                     :other_name => us.email, :flag_other => @flag_other, :py => @py,
+                                     :flag_together => @flag_together, :pxy => @pxy,
+                                     :similarity => @mi }
+      end
+      render :json => @users_similarity
+    end
+
+    #calculate_similarity of other user in this course
+    def calculate_similarity_test
+      @users = User.all
+      @user = User.find_by_email( current_user.email )
+      @course = Course.find( params[ :id] )
+
+      #store each users' similarity in this course in an array
+      @users_similarity = Array.new()
+      @result = Array.new
+      @users.each_with_index do |us, index|
+        @flag_user = 0
+        @flag_other = 0
+        @flag_together = 0
+        @lesson_counter = 0
+
+        #call calculate_learning_flag to calculate target's similarity in this course
+        @result = calculate_learning_flag( @user.id, us.id, @course.id, @course.course_tree )
+        puts @result
+        @lesson_counter = @result[ :lesson_counter]
+        @flag_user = @result[ :flag_user]
+        @flag_other = @result[ :flag_other]
+        @flag_together = @result[ :flag_together]
+
+        #calculate the similarity
+        @pxy = ( @flag_together.to_f/@lesson_counter.to_f )
+        @px = ( @flag_user.to_f/@lesson_counter.to_f )
+        @py = ( @flag_other.to_f/@lesson_counter.to_f )
+
+        if @px != 0 && @py != 0
+          @mi = (@pxy*Math::log( ( @pxy/(@px*@py) ), 10)).to_f
+        else
+          @mi = 0
+        end
+        #store the similartiy in the array
         @users_similarity[index] = { :lesson_counter => @lesson_counter, 
                                      :user_name => @user.email, :flag_user => @flag_user, :px => @px,
                                      :other_name => us.email, :flag_other => @flag_other, :py => @py,
                                      :flag_together => @flag_together, :pxy => @pxy,
                                      :similarity => @mi }
       end
+      #render :json => @result
       render :json => @users_similarity
     end
 
