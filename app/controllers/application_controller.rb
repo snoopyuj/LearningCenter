@@ -79,19 +79,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  #calculate_learning_flag
-  def calculate_learning_flag( user_id, friend_id, course_id, node, result = [] )
+  #count_learning_flag
+  def count_learning_flag( user_id, friend_id, course_id, node )
     #initial the flag
-    @lesson_counter = 0
-    @flag_user = 0
-    @flag_other = 0
-    @flag_together = 0
 
     node.each do |nd|
       #if the node has children
-      if nd[ :node_items] == "none"
-        @lesson_counter += 1
+      if nd[ :node_items].is_a? (Array)
+        @temp = count_learning_flag( user_id, friend_id, course_id, nd[ :node_items] )
+      else
+        @lesson_counter+=1
 
+        #find out the learning history
         @history_user = UserLearningHistory.all( :conditions => { :user_id => user_id, :course_id => course_id, :lesson => nd[ :node_file] } )
         @history_other = UserLearningHistory.all( :conditions => { :user_id => friend_id, :course_id => course_id, :lesson => nd[ :node_file] } )
 
@@ -107,31 +106,59 @@ class ApplicationController < ActionController::Base
         if !@history_user.empty? && !@history_other.empty?
           @flag_together += 1
         end
-  
-        @return_value = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-        return @return_value
 
-      #if the node has no children
-      else
-        nd[ :node_items].each_with_index do |item, index|
-          @temp_array = Array.new()
-          @temp = calculate_learning_flag( user_id, friend_id, course_id, item, @temp_array )
-          if @temp.is_a? (Array)
-            @temp.each do |t|
-              @lesson_counter += t[ :lesson_counter]
-              @flag_user += t[ :flag_user]
-              @flag_other += t[ :flag_other]
-              @flag_together += t[ :flag_together]
-            end
-            result[index] = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-          else
-            result[index] = { :lesson_counter => @temp[ :lesson_counter], :flag_user => @temp[ :flag_user], :flag_other => @temp[ :flag_other],
-                              :flag_together => @temp[ :flag_together] }
-          end
-        end
-        return result
       end
     end
+
+    @return_value = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
+    return @return_value
+
+
+      #if nd[ :node_items] == "none"
+        #@lesson_counter += 1
+        #puts @lesson_counter
+        #@history_user = UserLearningHistory.all( :conditions => { :user_id => user_id, :course_id => course_id, :lesson => nd[ :node_file] } )
+        #@history_other = UserLearningHistory.all( :conditions => { :user_id => friend_id, :course_id => course_id, :lesson => nd[ :node_file] } )
+
+        #if the user has taken the course before
+        #if !@history_user.empty?
+          #@flag_user += 1
+        #end
+        #if the target has taken the course before
+        #if !@history_other.empty?
+          #@flag_other += 1
+        #end
+        #if the user and the target have taken the course together before
+        #if !@history_user.empty? && !@history_other.empty?
+          #@flag_together += 1
+        #end
+  
+        #@return_value = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
+        #return @return_value
+
+      #if the node has no children
+      #else
+        #@temp_hash = Hash.new()
+        #nd[ :node_items].each do |item|
+          #@temp = count_learning_flag( user_id, friend_id, course_id, item, @temp_hash )
+          #@lesson_counter += @temp[ :lesson_counter]
+        #end
+        #puts @temp
+        #@flag_user += @temp[ :flag_user]
+        #@flag_other += @temp[ :flag_other]
+        #@flag_together += @temp[ :flag_together]
+        #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
+        #return result
+      #end
+
+      #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
+      #return result
+    #end
+    #@lesson_counter += @temp[ :lesson_counter].to_i
+    #@lesson_counter += @temp[ :lesson_counter].to_i
+    #puts "lesson counter is " + @lesson_counter.to_s
+    #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
+    #return result
   end
 
 end

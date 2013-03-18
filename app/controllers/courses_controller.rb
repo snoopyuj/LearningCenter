@@ -184,85 +184,8 @@ class CoursesController < ApplicationController
       end
     end
 
-    #get_learning_history
-    def calculate_similarity
-      @users = User.all
-      @user = User.find_by_email( current_user.email )
-      @course_tree = Course.find( params[ :id] ).course_tree
-
-      #check out each user's similarity in this course
-      @users_similarity = Array.new()
-      @users.each_with_index do |us, index|
-        #flag to calculate the learning history
-        @flag_user = 0
-        @flag_other = 0
-        @flag_together = 0
-        @lesson_counter = 0
-
-        @course_tree.each do |ct|
-          if ct[ :node_items].is_a? Array
-            ct[ :node_items].each do |lt|
-              @lesson_counter += 1
-
-              @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => lt[ :node_file] } )
-              @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => lt[ :node_file] } )
-
-              #if the user has taken the course before
-              if !@history_user.empty?
-                @flag_user += 1
-              end
-              #if the target has taken the course before
-              if !@history_other.empty?
-                @flag_other += 1
-              end
-              #if the user and the target have taken the course together before
-              if !@history_user.empty? && !@history_other.empty?
-                @flag_together += 1
-              end
-            end
-          
-          else
-            @lesson_counter += 1
-
-            @history_user = UserLearningHistory.all( :conditions => { :user_id => @user.id, :course_id => params[ :id], :lesson => ct[ :node_file] } )
-            @history_other = UserLearningHistory.all( :conditions => { :user_id => us.id, :course_id => params[ :id], :lesson => ct[ :node_file] } )
-
-            #if the user has taken the course before
-            if !@history_user.empty?
-              @flag_user += 1
-            end
-            #if the target has taken the course before
-            if !@history_other.empty?
-              @flag_other += 1
-            end
-            #if the user and the target have taken the course together before
-            if !@history_user.empty? && !@history_other.empty?
-              @flag_together += 1
-            end
-          end
-        end
-        #calculate the similarity
-        @pxy = ( @flag_together.to_f/@lesson_counter.to_f )
-        @px = ( @flag_user.to_f/@lesson_counter.to_f )
-        @py = ( @flag_other.to_f/@lesson_counter.to_f )
-
-        if @px != 0 && @py != 0
-          @mi = @pxy*Math::log( ( @pxy/(@px*@py) ), 10)
-        else
-          @mi = 0
-        end
-        #store the similartiy in the array
-        @users_similarity[index] = { :lesson_counter => @lesson_counter,
-                                     :user_name => @user.email, :flag_user => @flag_user, :px => @px,
-                                     :other_name => us.email, :flag_other => @flag_other, :py => @py,
-                                     :flag_together => @flag_together, :pxy => @pxy,
-                                     :similarity => @mi }
-      end
-      render :json => @users_similarity
-    end
-
     #calculate_similarity of other user in this course
-    def calculate_similarity_test
+    def calculate_similarity
       @users = User.all
       @user = User.find_by_email( current_user.email )
       @course = Course.find( params[ :id] )
@@ -277,12 +200,11 @@ class CoursesController < ApplicationController
         @lesson_counter = 0
 
         #call calculate_learning_flag to calculate target's similarity in this course
-        @result = calculate_learning_flag( @user.id, us.id, @course.id, @course.course_tree )
-        puts @result
-        @lesson_counter = @result[ :lesson_counter]
-        @flag_user = @result[ :flag_user]
-        @flag_other = @result[ :flag_other]
-        @flag_together = @result[ :flag_together]
+        @result = count_learning_flag( @user.id, us.id, @course.id, @course.course_tree )
+        @lesson_counter = @result[ :lesson_counter].to_i
+        @flag_user = @result[ :flag_user].to_i
+        @flag_other = @result[ :flag_other].to_i
+        @flag_together = @result[ :flag_together].to_i
 
         #calculate the similarity
         @pxy = ( @flag_together.to_f/@lesson_counter.to_f )
@@ -295,13 +217,13 @@ class CoursesController < ApplicationController
           @mi = 0
         end
         #store the similartiy in the array
+        @users_similarity[index] = { :lesson_counter => @result }
         @users_similarity[index] = { :lesson_counter => @lesson_counter, 
                                      :user_name => @user.email, :flag_user => @flag_user, :px => @px,
                                      :other_name => us.email, :flag_other => @flag_other, :py => @py,
                                      :flag_together => @flag_together, :pxy => @pxy,
                                      :similarity => @mi }
       end
-      #render :json => @result
       render :json => @users_similarity
     end
 
