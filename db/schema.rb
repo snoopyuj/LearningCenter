@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130214064601) do
+ActiveRecord::Schema.define(:version => 20130501063955) do
 
   create_table "authentications", :force => true do |t|
     t.integer  "user_id"
@@ -22,15 +22,22 @@ ActiveRecord::Schema.define(:version => 20130214064601) do
     t.string   "token"
   end
 
+  create_table "category_course_relationships", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "courses", :force => true do |t|
     t.integer  "courseID"
     t.string   "courseName"
     t.integer  "courseStatus"
     t.text     "courseURL"
     t.string   "courseCurrent"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
     t.string   "course_tree"
+    t.integer  "category_course_relationship_id"
   end
 
   create_table "user_course_relationships", :force => true do |t|
@@ -65,6 +72,8 @@ ActiveRecord::Schema.define(:version => 20130214064601) do
     t.integer  "role"
     t.text     "friend"
     t.string   "fb_id"
+    t.string   "picture"
+    t.string   "name"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

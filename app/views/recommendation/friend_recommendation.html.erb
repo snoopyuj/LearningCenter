@@ -1,0 +1,20 @@
+  
+  <%= select_tag 'ask_or_new', "<option>New Friend</option><option>Friend to Ask</option>".html_safe, :prompt => "You want to?" %><br>
+
+  <%= select_tag 'select_mode', "<option>category</option><option>course</option>".html_safe, :prompt => "Please select a mode" %>
+
+  <%= select_tag 'select_category', options_from_collection_for_select( CategoryCourseRelationship.order( :name), 'id', 'name' ), :prompt => "Please select a category" %>
+  <%= button_tag 'Recommendation!', :id => "recommendation_in_category" %> 
+
+  <%= select_tag 'select_course', option_groups_from_collection_for_select( CategoryCourseRelationship.all, :courses, :name, :id, :courseName ), :prompt => "Please select a course" %>
+  <%= button_tag 'Recommendation!', :id => "recommendation_in_course" %> 
+
+  <div id="result"></div>
+  <br>
+  <%= link_to 'Back to Course List', courses_path %>
+
+
+
+
+
+

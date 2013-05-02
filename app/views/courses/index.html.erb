@@ -14,15 +14,17 @@
       <ul>
         <% @courses.each do |course| %>
           <li>
-            Course Name: <%= course.courseName %> <%= link_to 'Information', info_path( :id => course) %> <%= link_to 'Similarity', calculate_similarity_path( :id => course ) %> <%=link_to 'Parse', parse_course_tree_general_version_path( :id => course)  %>
+            Course Name: <%= course.courseName %> <%= link_to 'Information', info_path( :id => course) %> 
           </li>
         <% end %>
       </ul>
     </h3>
 
     <br>
-
+<!--
     <%= button_to('Get Friends!', get_fb_friends_path(), :class => 'btn btn-primary') %>
     <%= button_to('Send Data API', send_data_to_3D_path(), :class => 'btn btn-primary') %>
+-->
+    <%= button_to('Friend Recommendation', friend_recommendation_path(), :class => 'btn btn-primary') %>
   <% end %>
 <% end %>

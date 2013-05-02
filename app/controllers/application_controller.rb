@@ -112,53 +112,66 @@ class ApplicationController < ActionController::Base
 
     @return_value = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
     return @return_value
+  end
 
+  #get fb_information
+  def get_fb_info( user_id )
+    #update information and friend list
+    @user = User.find(user_id)
+    @authentication = Authentication.find_by_user_id( @user.id )
+    @user.fb_id = @authentication.uid
 
-      #if nd[ :node_items] == "none"
-        #@lesson_counter += 1
-        #puts @lesson_counter
-        #@history_user = UserLearningHistory.all( :conditions => { :user_id => user_id, :course_id => course_id, :lesson => nd[ :node_file] } )
-        #@history_other = UserLearningHistory.all( :conditions => { :user_id => friend_id, :course_id => course_id, :lesson => nd[ :node_file] } )
+    @friend_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=friends.fields(picture,email,name)&access_token=' + @authentication.token)
+    @friends = Array.new()
+    @close_friends = Array.new()
+    @acquaintance_friends = Array.new()
 
-        #if the user has taken the course before
-        #if !@history_user.empty?
-          #@flag_user += 1
-        #end
-        #if the target has taken the course before
-        #if !@history_other.empty?
-          #@flag_other += 1
-        #end
-        #if the user and the target have taken the course together before
-        #if !@history_user.empty? && !@history_other.empty?
-          #@flag_together += 1
-        #end
-  
-        #@return_value = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-        #return @return_value
+    #get the friend list
+    @friend_list_url = HTTParty.get('https://graph.facebook.com/me/friendlists?access_token=' + @authentication.token )
+    #get the close friend list and acquaintances list
+    @friend_list_url['data'].each do |list|
+      if list['list_type'] == "close_friends"
+        @close_id = list['id']
+      end
+      if list['list_type'] == "acquaintances"
+        @acquaintance_id = list['id']
+      end
+    end
 
-      #if the node has no children
-      #else
-        #@temp_hash = Hash.new()
-        #nd[ :node_items].each do |item|
-          #@temp = count_learning_flag( user_id, friend_id, course_id, item, @temp_hash )
-          #@lesson_counter += @temp[ :lesson_counter]
-        #end
-        #puts @temp
-        #@flag_user += @temp[ :flag_user]
-        #@flag_other += @temp[ :flag_other]
-        #@flag_together += @temp[ :flag_together]
-        #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-        #return result
-      #end
+    #store close friend
+    @close_friend_list = HTTParty.get('https://graph.facebook.com/' + @close_id + '/members?access_token=' + @authentication.token )
+    @close_friend_list['data'].each_with_index do |cf, index|
+      @close_friends[index] = cf['id']
+    end
 
-      #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-      #return result
-    #end
-    #@lesson_counter += @temp[ :lesson_counter].to_i
-    #@lesson_counter += @temp[ :lesson_counter].to_i
-    #puts "lesson counter is " + @lesson_counter.to_s
-    #result = { :lesson_counter => @lesson_counter, :flag_user => @flag_user, :flag_other => @flag_other, :flag_together => @flag_together }
-    #return result
+    #store acquaintance friend
+    @acquaintance_friend_list = HTTParty.get('https://graph.facebook.com/' + @acquaintance_id + '/members?access_token=' + @authentication.token )
+    @acquaintance_friend_list['data'].each_with_index do |af, index|
+      @acquaintance_friends[index] = af['id']
+    end
+
+    @friend_data['friends']['data'].each_with_index do |fd, index|
+      #store the friend data
+      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "0", :picture => fd['picture']['data']['url'] }
+
+      #check the friend is close friend or not
+      @close_friends.each do |cf|
+        if fd['id'] == cf
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
+        end
+      end
+      #check the friend is acquaintance or not
+      @acquaintance_friends.each do |af|
+        if fd['id'] == af
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
+        end
+      end
+    end
+    @user.friend = @friends 
+    @user_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=picture,name' )
+    @user.name = @user_data['name']
+    @user.picture = @user_data['picture']['data']['url']
+    @user.save
   end
 
 end

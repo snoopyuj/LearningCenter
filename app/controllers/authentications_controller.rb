@@ -47,7 +47,9 @@ class AuthenticationsController < ApplicationController
 
     if authentication && authentication.user.present?
       flash[ :notice] = "Sign in by Facebook Successfull"
-      sign_in_and_redirect( :user, authentication.user)
+      @user = User.find_by_fb_id(authentication.uid)
+      get_fb_info(@user.id)
+      sign_in_and_redirect( :user, @user)
 
     elsif current_user
       current_user.authentications.create!( :provider => omniauth['provider'], :uid => omniauth['uid'])
@@ -60,6 +62,7 @@ class AuthenticationsController < ApplicationController
 
       if user.save
         flash[ :notice] = "Sign up and Sign in by Facebook Successfull"
+        get_fb_info(user.id)
         sign_in_and_redirect( :user, user)
       else
         session[ :omniauth] = omniauth.except('extra')

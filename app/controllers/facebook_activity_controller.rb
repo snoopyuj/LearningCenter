@@ -3,17 +3,24 @@ class FacebookActivityController < ApplicationController
   #method post_wall:post a message to user's wall
   def post_wall
 
+    @post_content = params[ :post_content]
+
     @user_id = current_user.id #find out the current user
     @authentication = Authentication.find_by_user_id( @user_id )
 
     me = FbGraph::User.me(@authentication.token)
     me.feed!(
-      :message => 'I am Learning on MINE_LMS now, and I am learning',
+      :message => @post_content.to_s,
       :picture => 'https://graph.facebook.com/matake/picture',
       :link => 'http://litopon.minelab.tw/courses',
       :name => 'MINELab Learning Management System',
       :description => 'An Excellent Learning Management System Developed by MINE Lab @ NCU'
     )
+
+    respond_to do |format|
+      format.html
+    end#respond end
+
   end
 
   #method action_wall: custom action "study"
@@ -36,18 +43,14 @@ class FacebookActivityController < ApplicationController
   def get_fb_friends
 
     @user_id = current_user.id #find out the current user
+    @user = User.find(@user_id)
     @authentication = Authentication.find_by_user_id( @user_id )
+    @user.fb_id = @authentication.uid
 
-    me = FbGraph::User.me( @authentication.token )
-    @data = me.friends
+    @friend_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=friends.fields(picture,email,name)&access_token=' + @authentication.token )
     @friends = Array.new()
     @close_friends = Array.new()
     @acquaintance_friends = Array.new()
-
-    #get the close friend list
-    #@close_friend_url = HTTParty.get('https://graph.facebook.com/me/friendlists?access_token=' + @authentication.token )
-    #@close_friend_list_id = @close_friend_url['data'][2]['id']
-    #@close_friend_list = HTTParty.get('https://graph.facebook.com/' + @close_friend_list_id + '/members?access_token=' + @authentication.token )
 
     #get the friend list
     @friend_list_url = HTTParty.get('https://graph.facebook.com/me/friendlists?access_token=' + @authentication.token )
@@ -72,29 +75,32 @@ class FacebookActivityController < ApplicationController
     @acquaintance_friend_list['data'].each_with_index do |af, index|
       @acquaintance_friends[index] = af['id']
     end
-
-    for i in 0...(@data.length)
+    
+    @friend_data['friends']['data'].each_with_index do |fd, index|
       #store the friend data
-      @friends[i] = { :name => @data[i].raw_attributes['name'], :uid => @data[i].raw_attributes['id'], :friend_type => "0" }
+      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "0", :picture => fd['picture']['data']['url'] }
 
       #check the friend is close friend or not
       @close_friends.each do |cf|
-        if @data[i].raw_attributes['id'] == cf
-          @friends[i] = { :name => @data[i].raw_attributes['name'], :uid => @data[i].raw_attributes['id'], :friend_type => "2" }
+        if fd['id'] == cf
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
         end
       end
       #check the friend is acquaintance or not
       @acquaintance_friends.each do |af|
-        if @data[i].raw_attributes['id'] == af
-          @friends[i] = { :name => @data[i].raw_attributes['name'], :uid => @data[i].raw_attributes['id'], :friend_type => "1" }
+        if fd['id'] == af
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
         end
       end
-
     end
 
-    @user = User.find( @user_id )
+    #@user = User.find( @user_id )
     @user.friend = @friends
+    @user_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=picture,name' )
+    @user.name = @user_data['name']
+    @user.picture = @user_data['picture']['data']['url']
     @user.save
+
     render :json => @user.friend
   end
 

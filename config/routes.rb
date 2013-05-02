@@ -2,23 +2,14 @@ Elearning::Application.routes.draw do
   #RESTful
     resources :courses
 
-    #use get to handle the url like /courses/info/id
     get '/course/info/:id' => 'courses#info', :as => 'info'
-    #parse_course_tree
     match 'course/parse_course_tree' => 'courses#parse_course_tree', :as => 'parse_course_tree'
-    #parse_course_tree_general_version
     match 'course/parse_course_tree_general_version' => 'courses#parse_course_tree_general_version', :as => 'parse_course_tree_general_version'
-    #download_course_list
     get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'
-    #upload_course_list
     post '/course/upload_course_list/' => 'courses#upload_course_list', :as => 'upload_course_list'
-    #view_course
     match 'course/view_course/:id' => 'courses#view_course', :as => 'view_course'
-    #calculate_similarity
     match '/course/calculate_similarity' => 'courses#calculate_similarity', :as => 'calculate_similarity'
-    #progress_monitor_by_course
     match '/course/progress_monitor_by_course' => 'courses#progress_monitor_by_course', :as => 'progress_monitor_by_course'
-    #progress_monitor_by_user
     match '/course/progress_monitor_by_user' => 'courses#progress_monitor_by_user', :as => 'progress_monitor_by_user'
 
   #for omniauth
@@ -32,19 +23,24 @@ Elearning::Application.routes.draw do
     root :to => "courses#index"
 
   #fb_graph
-    #send_data_to_3D
     match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
 
     resources :facebook_activity
     
-    #post_wall
     post '/facebook_activity/post_wall' => 'facebook_activity#post_wall', :as => 'post_wall'
-    #action_wall
     post 'facebook_activity/action_wall' => 'facebook_activity#action_wall', :as => 'action_wall'
-    #get_fb_friends
     match 'facebook_activity/get_fb_friends' => 'facebook_activity#get_fb_friends', :as => 'get_fb_friends'
-    #send_data_to_3D
-    #match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+    match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+
+  #for recommendation system
+    resources :recommendation
+    
+    match '/recommendation/friend_recommendation' => 'recommendation#friend_recommendation', :as => 'friend_recommendation'
+    match '/recommendation/friend_recommendation_in_category' => 'recommendation#friend_recommendation_in_category', :as => 'friend_recommendation_in_category'
+    match '/recommendation/friend_recommendation_in_course' => 'recommendation#friend_recommendation_in_course', :as => 'friend_recommendation_in_course'
+    match '/recommendation/ask_recommendation_in_category' => 'recommendation#ask_recommendation_in_category', :as => 'ask_recommendation_in_category'
+    match '/recommendation/ask_recommendation_in_course' => 'recommendation#ask_recommendation_in_course', :as => 'ask_recommendation_in_course'
+
     
 
   # The priority is based upon order of creation:
