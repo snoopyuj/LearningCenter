@@ -1,0 +1,8 @@
+ <%= select_tag 'select_category', options_from_collection_for_select( CategoryCourseRelationship.order( :name), 'id', 'name' ),:prompt => "Please select a category", :id => "course_recommend_select_category" %>
+ <%= button_tag 'Recommendation!', :id => "course_recommend_submit_button" %>
+
+ <div id="result"></div>
+ <br>
+ <%= link_to 'Back to Course List', courses_path %>
+
+

@@ -114,6 +114,26 @@ class ApplicationController < ActionController::Base
     return @return_value
   end
 
+  #check learning flag: check the use finished the course or not
+  def check_learning_flag( user_id, course_id, node )
+    node.each do |nd|
+      #if the node has children
+      if nd[ :node_items].is_a? (Array)
+        @temp = check_learning_flag( user_id, course_id, nd[ :node_items] )
+      else
+        @lesson_counter += 1
+
+        #find out the learning history
+        @history_user = UserLearningHistory.all( :conditions => { :user_id => user_id, :course_id => course_id, :lesson => nd[ :node_file] } )
+
+        #if the user has taken the course before
+        if !@history_user.empty?
+          @flag_user += 1
+        end
+      end
+    end
+  end
+
   #get fb_information
   def get_fb_info( user_id )
     #update information and friend list
@@ -152,18 +172,18 @@ class ApplicationController < ActionController::Base
 
     @friend_data['friends']['data'].each_with_index do |fd, index|
       #store the friend data
-      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "0", :picture => fd['picture']['data']['url'] }
+      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
 
       #check the friend is close friend or not
       @close_friends.each do |cf|
         if fd['id'] == cf
-          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "3", :picture => fd['picture']['data']['url'] }
         end
       end
       #check the friend is acquaintance or not
       @acquaintance_friends.each do |af|
         if fd['id'] == af
-          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
         end
       end
     end

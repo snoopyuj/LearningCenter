@@ -3,11 +3,10 @@
     <tr>
       <td><img src='<%=r[ :other_picture]%>'></td>
       <td>
-        user's name: <%= r[ :other_name] %></br>
+        user's name: <a href="http://www.facebook.com/<%= r[ :other_id] %>"><%= r[ :other_name] %></a></br>
         user's similarity: <%= r[ :similarity] %>
       </td>
     </tr>
   <% end %>
 </table>
-
 

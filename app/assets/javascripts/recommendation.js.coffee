@@ -31,44 +31,55 @@ jQuery ->
   $("#recommendation_in_category").click -> 
     if $("#ask_or_new").val() is "New Friend"
       $.ajax
-       type: "POST"
-       url: "/recommendation/friend_recommendation_in_category"
-       data:
-         select_category: $("#select_category").val()
-         datatype: "script"
-       success: ->
-         alert("friend category success")
+        type: "POST"
+        url: "/recommendation/friend_recommendation_in_category"
+        data:
+          select_category: $("#select_category").val()
+          datatype: "script"
+        success: ->
+          alert("friend category success")
     else if $("#ask_or_new").val() is "Friend to Ask"
       $.ajax
-       type: "POST"
-       url: "/recommendation/ask_recommendation_in_category"
-       data:
-         select_category: $("#select_category").val()
-         datatype: "script"
-       success: ->
-         alert("ask category success")
+        type: "POST"
+        url: "/recommendation/ask_recommendation_in_category"
+        data:
+          select_category: $("#select_category").val()
+          datatype: "script"
+        success: ->
+          alert("ask category success")
 
 
 
   $("#recommendation_in_course").click ->
     if $("#ask_or_new").val() is "New Friend"
       $.ajax
-       type: "POST"
-       url: "/recommendation/friend_recommendation_in_course"
-       data:
-         select_course: $("#select_course").val()
-         datatype: "script"
-       success: ->
-         alert("friend course success")
+        type: "POST"
+        url: "/recommendation/friend_recommendation_in_course"
+        data:
+          select_course: $("#select_course").val()
+          datatype: "script"
+        success: ->
+          alert("friend course success")
     else if $("#ask_or_new").val() is "Friend to Ask"
       $.ajax
-       type: "POST"
-       url: "/recommendation/ask_recommendation_in_course"
-       data:
-         select_course: $("#select_course").val()
-         datatype: "script"
-       success: ->
-         alert("ask course success")
+        type: "POST"
+        url: "/recommendation/ask_recommendation_in_course"
+        data:
+          select_course: $("#select_course").val()
+          datatype: "script"
+        success: ->
+          alert("ask course success")
+
+  $("#course_recommend_submit_button").click ->      
+    $.ajax
+      type: "POST"
+      url: "/recommendation/course_recommendation_calculation"
+      data:
+        select_category: $("#course_recommend_select_category").val()
+        datatype: "script"
+      success: ->
+        alert("course recommend success")
+
 
 
 

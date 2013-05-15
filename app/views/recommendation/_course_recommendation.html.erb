@@ -1,0 +1,11 @@
+<table>
+  <% @result.each do |r| %>
+    <tr>
+      <td>
+        courseName: <%= r[ :courseName] %></br>
+        Ranking: <%= r[ :confedence] %>
+      </td>
+    </tr>
+  <% end %>
+</table>
+

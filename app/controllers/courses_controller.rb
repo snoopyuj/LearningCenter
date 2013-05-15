@@ -245,65 +245,6 @@ class CoursesController < ApplicationController
     #method after_sign_in_for: override the method in devise
     def after_sign_in_path_for(resource)
       redirect_to courses_path
-  
-      #update information and friend list
-        @user_id = current_user.id #find out the current user
-        @user = User.find(@user_id)
-        @authentication = Authentication.find_by_user_id( @user_id )
-        @user.fb_id = @authentication.uid
-
-        @friend_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=friends.fields(picture,email,name)&access_token=' + @authentication.token)
-        @friends = Array.new()
-        @close_friends = Array.new()
-        @acquaintance_friends = Array.new()
-
-        #get the friend list
-        @friend_list_url = HTTParty.get('https://graph.facebook.com/me/friendlists?access_token=' + @authentication.token )
-        #get the close friend list and acquaintances list
-        @friend_list_url['data'].each do |list|
-          if list['list_type'] == "close_friends"
-            @close_id = list['id']
-          end
-          if list['list_type'] == "acquaintances"
-            @acquaintance_id = list['id']
-          end
-        end
-
-        #store close friend
-        @close_friend_list = HTTParty.get('https://graph.facebook.com/' + @close_id + '/members?access_token=' + @authentication.token )
-        @close_friend_list['data'].each_with_index do |cf, index|
-          @close_friends[index] = cf['id']
-        end
-
-        #store acquaintance friend
-        @acquaintance_friend_list = HTTParty.get('https://graph.facebook.com/' + @acquaintance_id + '/members?access_token=' + @authentication.token )
-        @acquaintance_friend_list['data'].each_with_index do |af, index|
-          @acquaintance_friends[index] = af['id']
-        end
-
-        @friend_data['friends']['data'].each_with_index do |fd, index|
-          #store the friend data
-          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "0", :picture => fd['picture']['data']['url'] }
-
-          #check the friend is close friend or not
-          @close_friends.each do |cf|
-            if fd['id'] == cf
-              @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
-            end
-          end
-          #check the friend is acquaintance or not
-          @acquaintance_friends.each do |af|
-            if fd['id'] == af
-              @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
-            end
-          end
-        end
-
-        @user.friend = @friends
-        @user_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=picture,name' )
-        @user.name = @user_data['name']
-        @user.picture = @user_data['picture']['data']['url']
-        @user.save
     end
 
     #method after_sign_out_for: override the method in devise

@@ -78,18 +78,18 @@ class FacebookActivityController < ApplicationController
     
     @friend_data['friends']['data'].each_with_index do |fd, index|
       #store the friend data
-      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "0", :picture => fd['picture']['data']['url'] }
+      @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
 
       #check the friend is close friend or not
       @close_friends.each do |cf|
         if fd['id'] == cf
-          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "3", :picture => fd['picture']['data']['url'] }
         end
       end
       #check the friend is acquaintance or not
       @acquaintance_friends.each do |af|
         if fd['id'] == af
-          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "1", :picture => fd['picture']['data']['url'] }
+          @friends[index] = { :name => fd['name'], :uid => fd['id'], :friend_type => "2", :picture => fd['picture']['data']['url'] }
         end
       end
     end

@@ -15,7 +15,7 @@ Elearning::Application.routes.draw do
   #for omniauth
     resources :authentications
 
-    match '/auth/:provider/callback' => 'authentications#create'
+    match '/auth/facebook/callback' => 'authentications#create'
 
   #Devise
     devise_for :users, :controller => { :registrations => 'registrations'}
@@ -40,6 +40,9 @@ Elearning::Application.routes.draw do
     match '/recommendation/friend_recommendation_in_course' => 'recommendation#friend_recommendation_in_course', :as => 'friend_recommendation_in_course'
     match '/recommendation/ask_recommendation_in_category' => 'recommendation#ask_recommendation_in_category', :as => 'ask_recommendation_in_category'
     match '/recommendation/ask_recommendation_in_course' => 'recommendation#ask_recommendation_in_course', :as => 'ask_recommendation_in_course'
+
+    match '/recommendation/course_recommendation' => 'recommendation#course_recommendation', :as => 'course_recommendation'
+    match '/recommendation/course_recommendation_calculation' => 'recommendation#course_recommendation_calculation', :as => 'course_recommendation_calculation'
 
     
 
