@@ -1,11 +1,34 @@
-<table>
-  <% @result.each do |r| %>
-    <tr>
-      <td>
-        courseName: <%= r[ :courseName] %></br>
-        Ranking: <%= r[ :confedence] %>
-      </td>
-    </tr>
-  <% end %>
-</table>
+<% if @result.empty? %>
+  <h3>
+    Sorry we can not recommend anything according you situation..QQ<br>
+    Please try again<br>
+  </h3>
+<% else %>
+  <table>
+    <% @result.each do |r| %>
+      <tr>
+        <td height="150"><%= image_tag "MINE_logo.png", :height => '90', :width => '90' %></td>
+        <td>
+          <h4>courseName: <%= r[ :courseName] %></h4>
+          Ranking: <%= r[ :confedence] %><br>
+ 
+          <% if !r[ :friend].empty? %>
+            <table>
+              <tr>
+                <b>Who takes this course? :</b> 
+                <% r[ :friend].each do |rf| %>          
+                  <td height="60"><img src='<%=rf[ :picture]%>'></td>                 
+                  <td><a href="http://www.facebook.com/<%= rf[ :fb_id] %>"><%= rf[ :name] %></a></td>
+                <% end %>
+              </tr>
+            </table>
+          <% end %>
+
+        <td>
+          <%= button_to('Go to See it!!', info_path( :id => r[ :courseID] ), :class => 'btn btn-primary') %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
 

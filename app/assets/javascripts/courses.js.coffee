@@ -18,5 +18,5 @@ jQuery ->
        post_content: $("#post_content").val()
        datatype: "json"
        success: ->
-         alert("success")
+         alert("Post to Facebook Success!!")
          $("#post_area").hide()

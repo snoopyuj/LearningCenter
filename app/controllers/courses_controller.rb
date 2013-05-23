@@ -1,7 +1,7 @@
 class CoursesController < ApplicationController
 
     #before_filter :authenticate_user!
-    
+
     #method index: list the courses
     def index
       @courses = Course.all
@@ -168,6 +168,7 @@ class CoursesController < ApplicationController
             @new_history = UserLearningHistory.new( :user_id => @user_id, :course_id => params[ :id], :lesson => @resources[@index.to_i]['href'].to_s )
             @new_history.save
           end
+
           @index = (@index.to_i + 1).to_s
         end
         #params[ :go] == -1 means go previous page

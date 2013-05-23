@@ -37,7 +37,7 @@ jQuery ->
           select_category: $("#select_category").val()
           datatype: "script"
         success: ->
-          alert("friend category success")
+          $("#intro_word").hide()
     else if $("#ask_or_new").val() is "Friend to Ask"
       $.ajax
         type: "POST"
@@ -46,8 +46,7 @@ jQuery ->
           select_category: $("#select_category").val()
           datatype: "script"
         success: ->
-          alert("ask category success")
-
+          $("#intro_word").hide()
 
 
   $("#recommendation_in_course").click ->
@@ -59,7 +58,7 @@ jQuery ->
           select_course: $("#select_course").val()
           datatype: "script"
         success: ->
-          alert("friend course success")
+          $("#intro_word").hide()
     else if $("#ask_or_new").val() is "Friend to Ask"
       $.ajax
         type: "POST"
@@ -68,7 +67,7 @@ jQuery ->
           select_course: $("#select_course").val()
           datatype: "script"
         success: ->
-          alert("ask course success")
+          $("#intro_word").hide()
 
   $("#course_recommend_submit_button").click ->      
     $.ajax
@@ -78,7 +77,8 @@ jQuery ->
         select_category: $("#course_recommend_select_category").val()
         datatype: "script"
       success: ->
-        alert("course recommend success")
+        $("#intro_word").hide()
+
 
 
 

@@ -1,12 +1,18 @@
-<table>
-  <% @result.each do |r| %>
-    <tr>
-      <td><img src='<%=r[ :other_picture]%>'></td>
-      <td>
-        user's name: <a href="http://www.facebook.com/<%= r[ :other_id] %>"><%= r[ :other_name] %></a></br>
-        user's similarity: <%= r[ :similarity] %>
-      </td>
-    </tr>
-  <% end %>
-</table>
-
+<% if @result.empty? %>
+  <h3>
+    Sorry we can not find out a user to recommend...QQ<br>
+    Please try again<br>
+  </h3>
+<% else %>
+  <table>
+    <% @result.each do |r| %>
+      <tr>
+        <td height="60"><img src='<%=r[ :other_picture]%>'></td>
+        <td>
+          user's name: <a href="http://www.facebook.com/<%= r[ :other_id] %>"><%= r[ :other_name] %></a></br>
+          user's similarity: <%= r[ :similarity] %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

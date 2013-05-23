@@ -11,7 +11,7 @@ class FacebookActivityController < ApplicationController
     me = FbGraph::User.me(@authentication.token)
     me.feed!(
       :message => @post_content.to_s,
-      :picture => 'https://graph.facebook.com/matake/picture',
+      :picture => 'https://dl.dropboxusercontent.com/u/21602009/MINE_logo.png',
       :link => 'http://litopon.minelab.tw/courses',
       :name => 'MINELab Learning Management System',
       :description => 'An Excellent Learning Management System Developed by MINE Lab @ NCU'

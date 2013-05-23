@@ -44,7 +44,7 @@ class RecommendationController < ApplicationController
       end
 
       if @flag_user == 0 || @flag_other == 0
-        @similarity = 0
+        @similarity = 0.0
       end
 
       #store the similartiy in the array
@@ -55,8 +55,14 @@ class RecommendationController < ApplicationController
                                     :similarity => @similarity.to_f }
       @index += 1
     end#users end
-    #sort the result by the similarity value
-    @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse
+
+    @users_similarity.delete_if{ |us| us[ :similarity].to_f == 0.0 }
+    #sort the result by the similarity value   
+    if @users_similarity.length > 5
+      @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse.first(5)
+    else
+      @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse
+    end  
     #send the result back to the client side
     respond_to do |format|
       format.js 
@@ -126,7 +132,7 @@ class RecommendationController < ApplicationController
     #calculate the similarity by Cosine Similarity
     @temp_result.each_with_index do |tr, index|
       if tr[ :flag_user].to_f == 0 || tr[ :flag_other].to_f == 0
-        @similarity = 0
+        @similarity = 0.0
       else
         @similarity = ( tr[ :flag_together].to_f / ( Math.sqrt(tr[ :flag_user].to_f) * Math.sqrt(tr[ :flag_other].to_f) ).to_f ).to_f
       end
@@ -136,8 +142,13 @@ class RecommendationController < ApplicationController
                          :similarity => @similarity.to_f }
     end
 
+    @result.delete_if{ |r| r[ :similarity].to_f == 0.0 }
     #sort the result by the similarity value
-    #@result = @result.sort_by { |user| user[ :similarity] }
+    if @result.length > 5
+      @result = @result.sort_by { |user| user[ :similarity] }.reverse.first(5)
+    else
+      @result = @result.sort_by { |user| user[ :similarity] }.reverse
+    end
     #send the result back to the client side
     respond_to do |format|
       format.js
@@ -184,7 +195,7 @@ class RecommendationController < ApplicationController
       end
 
       if @flag_user == 0 || @flag_other == 0
-        @similarity = 0
+        @similarity = 0.0
       end
 
       #store the similartiy in the array
@@ -197,8 +208,13 @@ class RecommendationController < ApplicationController
       @index += 1
     end#users end
 
+    @users_similarity.delete_if{ |us| us[ :similarity].to_f == 0.0 }
     #sort the result by the similarity value
-    @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse
+    if @users_similarity.length > 5
+      @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse.first(5)
+    else
+      @result = @users_similarity.sort_by { |user| user[ :similarity] }.reverse
+    end
     #send the result back to the client side
     respond_to do |format|
       format.js
@@ -232,17 +248,16 @@ class RecommendationController < ApplicationController
         @flag_other = 0
         @flag_together = 0
 
-        #call count_learning_flag
+        #call calculate_learning_flag
         @temp = count_learning_flag( @user.id, @target.id, course.id, course.course_tree )
         @flag_user = (@temp[ :flag_user].to_f/@temp[ :lesson_counter].to_f).to_f
         @flag_other = (@temp[ :flag_other].to_f/@temp[ :lesson_counter].to_f).to_f
- 
+
         @users_data[@index] = { :user_name => @user.email, :flag_user => (@flag_user**2).to_f,
                                 :other_name => us[ :name], :flag_other => (@flag_other**2).to_f,
-                                :other_picture => us[ :picture], :other_id => us[ :uid],
+                                :other_picture => us[ :picture], :other_id => us[ :fb_id],
                                 :flag_together => (@flag_user*@flag_other).to_f
                               }
-
         @index += 1
       end#users end
 
@@ -268,7 +283,7 @@ class RecommendationController < ApplicationController
     #calculate the similarity by Cosine Similarity
     @temp_result.each_with_index do |tr, index|
       if tr[ :flag_user].to_f == 0.0 || tr[ :flag_other].to_f == 0.0
-        @similarity = 0
+        @similarity = 0.0
       else
         @similarity = ( tr[ :flag_together].to_f / ( Math.sqrt(tr[ :flag_user].to_f) * Math.sqrt(tr[ :flag_other].to_f) ).to_f ).to_f
       end
@@ -277,12 +292,18 @@ class RecommendationController < ApplicationController
                          :similarity => @similarity.to_f }
     end
 
+    @result.delete_if{ |r| r[ :similarity].to_f == 0.0 }
+
     #sort the result by the similarity value
-    @result = @result.sort_by { |user| user[ :similarity] }.reverse
+    if @result.length > 5
+      @result = @result.sort_by { |user| user[ :similarity] }.reverse.first(5)
+    else
+      @result = @result.sort_by { |user| user[ :similarity] }.reverse
+    end
     #send the result back to the client side
     respond_to do |format|
       format.js
-      format.json { render :json => @result }
+      format.json 
     end#respond end
 
   end#ask_recommendation end
@@ -351,7 +372,7 @@ class RecommendationController < ApplicationController
     #calculate the similarity by Cosine Similarity
     @temp_result.each_with_index do |tr, index|
       if tr[ :flag_user].to_f == 0 || tr[ :flag_other].to_f == 0
-        @similarity = 0
+        @similarity = 0.0
       else
         @similarity = ( tr[ :flag_together].to_f / ( Math.sqrt(tr[ :flag_user].to_f) * Math.sqrt(tr[ :flag_other].to_f) ).to_f ).to_f
       end
@@ -360,10 +381,9 @@ class RecommendationController < ApplicationController
                                :similarity => @similarity.to_f }
     end
 
-    #sort the result by the similarity value
-    @target_users = @target_users.sort_by { |user| user[ :similarity] }.reverse
     #*****STEP1: find out who is similar to me*****
 
+    @target_users.delete_if{ |tu| tu[ :similarity].to_f == 0.0 }
     #denominator of support: the number of data set of association rule
     @support_denominator = @target_users.length
 
@@ -374,8 +394,8 @@ class RecommendationController < ApplicationController
       @lesson_counter = 0
       @flag_user = 0
       check_learning_flag( @user.id, c.id, c.course_tree )
-      @temp = ((@flag_user*2).to_f/@lesson_counter.to_f).to_f
-      if @temp >= 0.3
+      @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
+      if @temp >= 0.5
          @course_finished[@index] = c
          @index += 1
       end
@@ -395,14 +415,14 @@ class RecommendationController < ApplicationController
         @lesson_counter = 0
         @flag_user = 0
         check_learning_flag( @target_user.id, cf.id, cf.course_tree )
-        @temp = ((@flag_user*2).to_f/@lesson_counter.to_f).to_f
-        if @temp >= 0.3
+        @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
+        if @temp >= 0.5
           @temp_result[index] = 1
         else
           @temp_result[index] = 0
         end
       end
-      @rule_x[@index] = { :name => @target_user.name, :fb_id => @target_user.fb_id, :result => @temp_result }
+      @rule_x[@index] = { :name => @target_user.name, :fb_id => @target_user.fb_id, :picture => @target_user.picture, :result => @temp_result }
       @index += 1
     end
 
@@ -419,7 +439,9 @@ class RecommendationController < ApplicationController
     @course_unfinish = @courses - @course_finished        
     @rule_y = Array.new( @course_unfinish.length )
     @course_unfinish.each_with_index do |cuf, index|
-      @rule_y[index] = { :courseID => cuf.id, :courseName => cuf.courseName, :ar_count => 0.0 }
+      @friend_read_this_course = Array.new()
+      @friend_read_this_course_index = 0
+      @rule_y[index] = { :course_id => cuf.id, :courseName => cuf.courseName, :ar_count => 0.0, :friend_read_this_course => @friend_read_this_course }
       @rule_x.each do |rx|
         @temp_user = User.find_by_fb_id(rx[ :fb_id])
 
@@ -427,7 +449,7 @@ class RecommendationController < ApplicationController
         @check_friend = 0.0
         @user.friend.each do |uf|
           if @temp_user.fb_id == uf[ :uid]
-            @check_friend = (uf[ :friend_type].to_f/10.0).to_f
+            @check_friend = (uf[ :friend_type].to_f/6.0).to_f
           end
         end
 
@@ -436,11 +458,15 @@ class RecommendationController < ApplicationController
         @flag_user = 0
         check_learning_flag( @temp_user.id, cuf.id, cuf.course_tree )
         @temp = ((@flag_user*2).to_f/@lesson_counter.to_f).to_f
-        if @temp >= 0.3
+        if @temp >= 0.5
           #if the user has finish the course
           @rule_y[index][ :ar_count] += 1.0
           #friend weight
-          @rule_y[index][ :ar_count] += @check_friend.to_f
+          if @check_friend.to_f > 0.0
+            #@rule_y[index][ :ar_count] += @check_friend.to_f
+            @rule_y[index][ :friend_read_this_course][@friend_read_this_course_index] = { :name => rx[ :name], :fb_id => rx[ :fb_id], :picture => rx[ :picture] }
+            @friend_read_this_course_index += 1
+          end
         end
       end
     end
@@ -449,13 +475,19 @@ class RecommendationController < ApplicationController
     #*****STEP5: calculate the support and confedence*****
     @result = Array.new() 
     @rule_y.each_with_index do |ry, index|
-      @course = Course.find_by_courseID( ry[ :courseID] )
-      @result[index] = { :corseID => @course.id, :courseName => @course.courseName, 
+      @result[index] = { :courseID => ry[ :course_id], :courseName => ry[ :courseName], 
                          :support => (ry[ :ar_count].to_f/@support_denominator.to_f).to_f,
-                         :confedence => (ry[ :ar_count].to_f/@confedence_denominator.to_f).to_f
+                         :confedence => (ry[ :ar_count].to_f/@confedence_denominator.to_f).to_f,
+                         :friend => ry[ :friend_read_this_course]
                        }
     end
-    @result = @result.sort_by{ |r| r[ :confedence] }.reverse
+
+    @result.delete_if{ |r| r[ :confedence].to_f == 0.0 }
+    if @result.length > 5
+      @result = @result.sort_by{ |r| r[ :confedence] }.reverse.first(5)
+    else
+      @result = @result.sort_by{ |r| r[ :confedence] }.reverse
+    end
     #*****STEP5: calculate the support and confedence*****
     respond_to do |format|
       format.js

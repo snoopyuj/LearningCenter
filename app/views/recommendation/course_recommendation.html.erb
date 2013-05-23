@@ -1,3 +1,12 @@
+<h3>Course Recommendation System</h3>
+<div id="intro_word">
+In this course recommendation, we will analyze you learning situation and other similar user's situation,<br>
+to recommend a good course you may want to you!!<br><br>
+<b>Operating Steps:</b><br>
+<li>Step1: Choose a category that you are learning now.
+<li>Step2: Find out the recommended courses and enjoy learning!!
+</div><br><br>
+
  <%= select_tag 'select_category', options_from_collection_for_select( CategoryCourseRelationship.order( :name), 'id', 'name' ),:prompt => "Please select a category", :id => "course_recommend_select_category" %>
  <%= button_tag 'Recommendation!', :id => "course_recommend_submit_button" %>
 

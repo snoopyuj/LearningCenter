@@ -1,11 +1,13 @@
 <h3>
-<br>CourseID: <%= @course.courseID %></br>
-<br>CourseName: <%= @course.courseName %> </br>
+CourseID: <%= @course.courseID %></br>
+CourseName: <%= @course.courseName %> </br>
+<!--
 <br>CourseStatus: <%= @course.courseStatus %></br>
 <br>CourseURL: <a href="<%= @course.courseURL %>" target="_blank">Click Here!!</a></br>
-<br>CourseCurrent: <%= @courseCurrent %></br>
+-->
+CourseCurrent: <%= @courseCurrent %></br>
+CourseDescription:<br>
+a basic course about Adobe <%= @course.courseName %>!!<br><br>
 <%= button_to('View', view_course_path(:id=>@course.id, :first => "1"), :class => 'btn btn-primary') %>
-<br>
-<br>
 <p><%= link_to 'Back to Course List', courses_path %>
 </h3>

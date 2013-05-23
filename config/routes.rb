@@ -2,7 +2,7 @@ Elearning::Application.routes.draw do
   #RESTful
     resources :courses
 
-    get '/course/info/:id' => 'courses#info', :as => 'info'
+    match '/course/info/:id' => 'courses#info', :as => 'info'
     match 'course/parse_course_tree' => 'courses#parse_course_tree', :as => 'parse_course_tree'
     match 'course/parse_course_tree_general_version' => 'courses#parse_course_tree_general_version', :as => 'parse_course_tree_general_version'
     get '/course/download_course_list' => 'courses#download_course_list', :as => 'download_course_list'

@@ -31,17 +31,17 @@
   <body>
 
 <!-- FB Like Button JavaScript -->
-    <div id="fb-root"></div>
-      <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=373518166042529";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));</script>
-
+  <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=373518166042529";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 <!-- End of Like Button JavaScript -->
 
+<!-- End of Facebook login -->
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -52,7 +52,7 @@
           <span class="icon-bar"></span>
         </a>
         
-        <a class="brand" href="#">SCORMdroid</a>
+        <a class="brand" href="#">MINELab Learning Management System</a>
           <div class="container-fluid nav-collapse">
             <ul class="nav">
               <!--
@@ -73,9 +73,7 @@
           <div class="well sidebar-nav">
             <div class="navbar">
               <h3>NCU MINE Lab</h3>
-              <!--
-              <%= image_tag "MINE_logo.png", :size => "72*72" %>
-              -->
+              <%= image_tag "MINE_logo.png", :height=>'240', :width=>'240' %>
               <br><br><br><br><br><br><br><br>
             </div><!--/navbar-->
           </div><!--/.well -->
@@ -84,13 +82,16 @@
          <div class="well sidebar-nav">
            <div class="navbar">
              <% if current_user %>
-               <%= current_user.email %><br>
-               <%= link_to('Sign out', destroy_user_session_path, :method => :delete ) %>  |  
-               <%= link_to('Change Password', edit_registration_path(:user)) %>
+               <table>
+                 <tr>
+                   <td height="60"><img src='<%= current_user.picture %>'></td>
+                   <td>
+                     <%= current_user.email %><br>
+                     <%= link_to('Sign out', destroy_user_session_path, :method => :delete ) %>  <br>
+                   </td>
+                 <tr>
+               </table>
              <% else %>
-               <%= link_to('Sign in', new_session_path(:user)) %>  |  
-               <%= link_to('Sign up', new_registration_path(:user)) %><br>
-
                <% if @authentications %>
                  <% unless @authentications.empty? %>
                  <p><strong>You can sign in to this account using:</strong></p>
@@ -116,7 +117,7 @@
                  Twitter
                </a>
                <a href="/auth/facebook" class="auth_provider">
-                 <%= image_tag "facebook_64.png", :size => "64x64", :alt => "Facebook" %>
+                 <%= image_tag "facebook_64.png", :size => "64x64", :alt => "Facebook"%>
                  Facebook
                </a>
                <a href="/auth/google_apps" class="auth_provider">
@@ -145,8 +146,8 @@
           <div class="hero-unit">
             <ul class="thumbnails">
               <h1>Welcom to<br>
-              NCU MINE Lab !!</h1>
-              <h6>This is SCORMdroid demo page!!</h6>
+              NCU MINE LMS !!</h1>
+              <h6>This is MINE LMS demo page!!</h6>
             </ul>
           </div>
 
@@ -163,14 +164,11 @@
           <%= link_to "Change Password" , edit_user_registration_path  %>
         <% else -%>
           <h2>Please Sign in first!</h2>
-          <h3>If you do not have an account, please sign up one!</h3>
-          <%= link_to "Sign in", new_user_session_path %>  |  
-          <%= link_to "Sign up", new_user_registration_path %>
+          <h3>Please click the Facebook button on the left side toolbar<br> and use your Facebook account to sign in!!</h3>
         <% end %>
         <br>
 <!-- Facebook Like Button -->
-        <div class="fb-like" data-href="http://litopon.mine.csie.ncu.edu.tw/courses" data-send="true" data-width="450" data-show-faces="true" data-font="arial"></div>
-
+        <div class="fb-like" data-href="http://litopon.mine.csie.ncu.edu.tw/courses" data-send="false" data-width="450" data-show-faces="true"></div>
       </div> 
       </div><!--/row-->
 
