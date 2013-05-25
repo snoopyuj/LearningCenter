@@ -10,9 +10,13 @@
         <td height="60"><img src='<%=r[ :other_picture]%>'></td>
         <td>
           user's name: <a href="http://www.facebook.com/<%= r[ :other_id] %>"><%= r[ :other_name] %></a></br>
-          user's similarity: <%= r[ :similarity] %>
+          user's similarity: <%= r[ :similarity] %><br>
+          <% if r[ :check_friend] == "1" %>
+            We are <b>FRIEND</b>!!
+          <% end %>
         </td>
       </tr>
     <% end %>
   </table>
 <% end %>
+

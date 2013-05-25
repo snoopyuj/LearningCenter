@@ -4,15 +4,11 @@
 
 jQuery ->
 
-  $("#select_mode").hide()
   $("#select_category").hide()
   $("#select_course").hide()
   $("#recommendation_in_category").hide()
   $("#recommendation_in_course").hide()
 
-  $("#ask_or_new").change ->
-    $("#select_mode").show()
- 
   $("#select_mode").change ->
     if $("#select_mode").val() is "category"
       $("#select_category").show()
@@ -29,45 +25,25 @@ jQuery ->
       $("#recommendation_in_course").show()
 
   $("#recommendation_in_category").click -> 
-    if $("#ask_or_new").val() is "New Friend"
-      $.ajax
-        type: "POST"
-        url: "/recommendation/friend_recommendation_in_category"
-        data:
-          select_category: $("#select_category").val()
-          datatype: "script"
-        success: ->
-          $("#intro_word").hide()
-    else if $("#ask_or_new").val() is "Friend to Ask"
-      $.ajax
-        type: "POST"
-        url: "/recommendation/ask_recommendation_in_category"
-        data:
-          select_category: $("#select_category").val()
-          datatype: "script"
-        success: ->
-          $("#intro_word").hide()
+    $.ajax
+      type: "POST"
+      url: "/recommendation/friend_recommendation_in_category"
+      data:
+        select_category: $("#select_category").val()
+        datatype: "script"
+      success: ->
+        $("#intro_word").hide()
 
 
   $("#recommendation_in_course").click ->
-    if $("#ask_or_new").val() is "New Friend"
-      $.ajax
-        type: "POST"
-        url: "/recommendation/friend_recommendation_in_course"
-        data:
-          select_course: $("#select_course").val()
-          datatype: "script"
-        success: ->
-          $("#intro_word").hide()
-    else if $("#ask_or_new").val() is "Friend to Ask"
-      $.ajax
-        type: "POST"
-        url: "/recommendation/ask_recommendation_in_course"
-        data:
-          select_course: $("#select_course").val()
-          datatype: "script"
-        success: ->
-          $("#intro_word").hide()
+    $.ajax
+      type: "POST"
+      url: "/recommendation/friend_recommendation_in_course"
+      data:
+        select_course: $("#select_course").val()
+        datatype: "script"
+      success: ->
+        $("#intro_word").hide()
 
   $("#course_recommend_submit_button").click ->      
     $.ajax

@@ -11,13 +11,13 @@
         <td>
           <h4>courseName: <%= r[ :courseName] %></h4>
           Ranking: <%= r[ :confedence] %><br>
- 
+
           <% if !r[ :friend].empty? %>
             <table>
               <tr>
-                <b>Who takes this course? :</b> 
-                <% r[ :friend].each do |rf| %>          
-                  <td height="60"><img src='<%=rf[ :picture]%>'></td>                 
+                <b>Who takes this course? :</b>
+                <% r[ :friend].each do |rf| %>
+                  <td height="60"><img src='<%=rf[ :picture]%>'></td>
                   <td><a href="http://www.facebook.com/<%= rf[ :fb_id] %>"><%= rf[ :name] %></a></td>
                 <% end %>
               </tr>

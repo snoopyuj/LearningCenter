@@ -15,7 +15,7 @@
         <% @courses.each do |course| %>
           <li>
             Course Name: <%= course.courseName %> <%= link_to 'Information', info_path( :id => course.id ) %> 
-            <%=link_to 'Parse', parse_course_tree_general_version_path( :id => course.id ) %> 
+            <!-- <%=link_to 'Parse', parse_course_tree_general_version_path( :id => course.id ) %>  -->
           </li>
         <% end %>
       </ul>
