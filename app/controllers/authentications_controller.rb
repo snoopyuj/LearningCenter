@@ -48,7 +48,7 @@ class AuthenticationsController < ApplicationController
       puts "i got signed_request"
     end
 
-    #authentication.update_attribute( :token =>  omniauth["credentials"]["token"])
+    authentication.update_attributes( :token => omniauth["credentials"]["token"] )
 
     if authentication && authentication.user.present?
       flash[ :notice] = "Sign in by Facebook Successfull"
