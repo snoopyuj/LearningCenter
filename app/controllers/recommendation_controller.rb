@@ -243,7 +243,7 @@ class RecommendationController < ApplicationController
 
     #*****STEP1: find out who is similar to me*****
 
-    @target_users.delete_if{ |tu| tu[ :similarity].to_f == 0.0 }
+    @target_users.delete_if{ |tu| tu[ :similarity].to_f < 0.5 }
     #if there are too many similar users, we take the first ten
     if @target_users.length >=10
       @target_users = @target_users.first(10)
@@ -266,90 +266,11 @@ class RecommendationController < ApplicationController
     end
     #*****STEP2: find out the course that the user is taken*****
 
-    @rule_x = Array.new()
-    @index = 0
     #*****STEP3: find out the STPE1 guys who have taken STEP2 courses*****
-    @target_users.each do |tu|
-      @target_user = User.find_by_fb_id(tu[ :other_id])
-
-      @course_finished.each_with_index do |cf, index|
-        @temp_result = Array.new()
-  
-        #if the learning path is over 0.3, we take this user finish this course
-        @lesson_counter = 0
-        @flag_user = 0
-        check_learning_flag( @target_user.id, cf.id, cf.course_tree )
-        @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
-        if @temp >= 0.5
-          @temp_result[index] = 1
-        else
-          @temp_result[index] = 0
-        end
-      end
-      @rule_x[@index] = { :name => @target_user.name, :fb_id => @target_user.fb_id, :picture => @target_user.picture, :result => @temp_result }
-      @index += 1
-    end
-
-    #if there is any course in course_finished is not taken by the user in target_users, delete him!
-    #so the remain users are the guys in STEP1 who have taken STEP courses
-    @rule_x.delete_if{ |tus| tus[ :result].include?(0) }
-    #*****STEP3: find out the STPE1 guys who have taken STEP2 courses*****
-
-    #denominator of confedence: the number of X, where X -> Y
-    @confedence_denominator = @rule_x.length
-
-    #*****STEP4: use association rule to find out the remain courses taken probability*****
-    #find out the remain courses
-    @course_unfinish = @courses - @course_finished        
-    @rule_y = Array.new( @course_unfinish.length )
-    @course_unfinish.each_with_index do |cuf, index|
-      @friend_read_this_course = Array.new()
-      @friend_read_this_course_index = 0
-      @rule_y[index] = { :course_id => cuf.id, :courseName => cuf.courseName, :ar_count => 0.0, :friend_read_this_course => @friend_read_this_course }
-      @rule_x.each do |rx|
-        @temp_user = User.find_by_fb_id(rx[ :fb_id])
-
-        #check the user is the current user's friend or not
-        @check_friend = 0.0
-        @user.friend.each do |uf|
-          if @temp_user.fb_id == uf[ :uid]
-            @check_friend = (uf[ :friend_type].to_f/6.0).to_f
-          end
-        end
-
-        #if the learning path is over 0.5, we take this user finish this course
-        @lesson_counter = 0
-        @flag_user = 0
-        check_learning_flag( @temp_user.id, cuf.id, cuf.course_tree )
-        @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
-        if @temp >= 0.5
-          #if the user has finish the course
-          @rule_y[index][ :ar_count] += 1.0
-          #friend weight
-          if @check_friend.to_f > 0.0
-            @rule_y[index][ :ar_count] += @check_friend.to_f
-            @rule_y[index][ :friend_read_this_course][@friend_read_this_course_index] = { :name => rx[ :name], :fb_id => rx[ :fb_id], :picture => rx[ :picture] }
-            @friend_read_this_course_index += 1
-          end
-        end
-      end
-    end
-    #*****STEP4: use association rule to find out the remain courses taken probability*****
-
-    #*****STEP5: calculate the support and confedence*****
-    @result = Array.new() 
-    @rule_y.each_with_index do |ry, index|
-      @result[index] = { :courseID => ry[ :course_id], :courseName => ry[ :courseName], 
-                         :support => (ry[ :ar_count].to_f/@support_denominator.to_f).to_f,
-                         :confedence => (ry[ :ar_count].to_f/@confedence_denominator.to_f).to_f,
-                         :friend => ry[ :friend_read_this_course]
-                       }
-    end
-
-    @result.delete_if{ |r| r[ :confedence].to_f == 0.0 }
-    #if the result is empty, which is the cold start problem
-    if @result.empty?
+    if @target_users.length == 0
+      @result = Array.new()
       @hot_course = Array.new()
+      @course_unfinish = @courses - @course_finished
       @course_unfinish.each_with_index do |cuf, index|
         @friend_read_this_course = Array.new()
         @friend_read_this_course_index = 0
@@ -369,7 +290,7 @@ class RecommendationController < ApplicationController
               @check_friend = ( uf[ :friend_type].to_f/6.0).to_f
             end
           end
-  
+
           #if the learning path is over 0.3, we take this user finish this course
           @lesson_counter = 0
           @flag_user = 0
@@ -386,7 +307,6 @@ class RecommendationController < ApplicationController
             end
           end
         end
-
         @result[index] = { :courseID => cuf.id, :courseName => cuf.courseName,
                            :confedence => ( @hot_course[index][ :ar_count].to_f/@users.length.to_f).to_f,
                            :friend => @hot_course[index][ :friend_read_this_course]
@@ -395,17 +315,100 @@ class RecommendationController < ApplicationController
 
       @result.delete_if{ |r| r[ :confedence] == 0.0}
       if @hot_course.length > 5
-        @result = @result.sort_by{ |hc| hc[ :confedence ] }.reverse.first(5)
+        @result = @result.sort_by{ |r| r[ :confedence ] }.reverse.first(5)
       else
-        @result = @result.sort_by{ |hc| hc[ :confedence ] }.reverse
+        @result = @result.sort_by{ |r| r[ :confedence ] }.reverse
       end
+
     else
+      @rule_x = Array.new()
+      @index = 0
+      @target_users.each do |tu|
+        @target_user = User.find_by_fb_id(tu[ :other_id])
+
+        @course_finished.each_with_index do |cf, index|
+          @temp_result = Array.new()
+  
+          #if the learning path is over 0.3, we take this user finish this course
+          @lesson_counter = 0
+          @flag_user = 0
+          check_learning_flag( @target_user.id, cf.id, cf.course_tree )
+          @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
+          if @temp >= 0.5
+            @temp_result[index] = 1
+          else
+            @temp_result[index] = 0
+          end
+        end
+        @rule_x[@index] = { :name => @target_user.name, :fb_id => @target_user.fb_id, :picture => @target_user.picture, :result => @temp_result }
+        @index += 1
+      end
+
+      #if there is any course in course_finished is not taken by the user in target_users, delete him!
+      #so the remain users are the guys in STEP1 who have taken STEP courses
+      @rule_x.delete_if{ |tus| tus[ :result].include?(0) }
+      #*****STEP3: find out the STPE1 guys who have taken STEP2 courses*****
+
+      #denominator of confedence: the number of X, where X -> Y
+      @confedence_denominator = @rule_x.length
+
+      #*****STEP4: use association rule to find out the remain courses taken probability*****
+      #find out the remain courses
+      @course_unfinish = @courses - @course_finished        
+      @rule_y = Array.new( @course_unfinish.length )
+      @course_unfinish.each_with_index do |cuf, index|
+        @friend_read_this_course = Array.new()
+        @friend_read_this_course_index = 0
+        @rule_y[index] = { :course_id => cuf.id, :courseName => cuf.courseName, :ar_count => 0.0, :friend_read_this_course => @friend_read_this_course }
+        @rule_x.each do |rx|
+          @temp_user = User.find_by_fb_id(rx[ :fb_id])
+
+          #check the user is the current user's friend or not
+          @check_friend = 0.0
+          @user.friend.each do |uf|
+            if @temp_user.fb_id == uf[ :uid]
+              @check_friend = (uf[ :friend_type].to_f/6.0).to_f
+            end
+          end
+
+          #if the learning path is over 0.5, we take this user finish this course
+          @lesson_counter = 0
+          @flag_user = 0
+          check_learning_flag( @temp_user.id, cuf.id, cuf.course_tree )
+          @temp = (@flag_user.to_f/@lesson_counter.to_f).to_f
+          if @temp >= 0.5
+            #if the user has finish the course
+            @rule_y[index][ :ar_count] += 1.0
+            #friend weight
+            if @check_friend.to_f > 0.0
+              @rule_y[index][ :ar_count] += @check_friend.to_f
+              @rule_y[index][ :friend_read_this_course][@friend_read_this_course_index] = { :name => rx[ :name], :fb_id => rx[ :fb_id], :picture => rx[ :picture] }
+              @friend_read_this_course_index += 1
+            end
+          end
+        end
+      end
+      #*****STEP4: use association rule to find out the remain courses taken probability*****
+
+      #*****STEP5: calculate the support and confedence*****
+      @result = Array.new() 
+      @rule_y.each_with_index do |ry, index|
+        @result[index] = { :courseID => ry[ :course_id], :courseName => ry[ :courseName], 
+                           :support => (ry[ :ar_count].to_f/@support_denominator.to_f).to_f,
+                           :confedence => (ry[ :ar_count].to_f/@confedence_denominator.to_f).to_f,
+                           :friend => ry[ :friend_read_this_course]
+                         }
+      end
+
+      @result.delete_if{ |r| r[ :confedence].to_f == 0.0 }
+      #if the result is empty, which is the cold start problem
       if @result.length > 5
         @result = @result.sort_by{ |r| r[ :confedence] }.reverse.first(5)
       else
         @result = @result.sort_by{ |r| r[ :confedence] }.reverse
       end#end of length check
-    end#end of empty check
+    end
+
     #*****STEP5: calculate the support and confedence*****
     respond_to do |format|
       format.js

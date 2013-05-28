@@ -8,6 +8,7 @@ class CoursesController < ApplicationController
 
       if current_user
         @user = User.find_by_email(current_user.email)    
+        #get_fb_info(@user.id)
       end
     end
     
@@ -169,7 +170,11 @@ class CoursesController < ApplicationController
             @new_history.save
           end
 
-          @index = (@index.to_i + 1).to_s
+          if @resources[(@index.to_i + 1).to_i].nil?
+            @index = 0
+          else
+            @index = (@index.to_i + 1).to_s
+          end
         end
         #params[ :go] == -1 means go previous page
         if @go == "-1" then
@@ -224,6 +229,26 @@ class CoursesController < ApplicationController
       end
       @users_similarity.sort_by { |user| user[ :similarity] }
       render :json => @users_similarity
+    end
+
+    #print_learning_path
+    def print_learning_path
+      @users = User.all
+      @courses = Course.all
+
+      @result = Array.new()
+      @users.each_with_index do |u, i|
+        @temp = Array.new()
+        @courses.each_with_index do |c, j|
+          @lesson_counter = 0
+          @flag_user = 0
+          check_learning_flag( u.id, c.id, c.course_tree )        
+          @temp[j] = @flag_user
+        end
+        @result[i] = { :user_id => u.id, :learning_path => @temp }
+      end
+
+      render :json => @result
     end
 
     #progress_monitor: let teacher get learning of all students

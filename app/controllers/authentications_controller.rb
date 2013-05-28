@@ -44,31 +44,29 @@ class AuthenticationsController < ApplicationController
     omniauth =  request.env["omniauth.auth"] 
     authentication = Authentication.find_by_provider_and_uid(omniauth['provider'], omniauth['uid'])
 
-    if params[ :signed_request]
-      puts "i got signed_request"
-    end
-
-    authentication.update_attributes( :token => omniauth["credentials"]["token"] )
+    #authentication.update_attributes( :token => omniauth["credentials"]["token"] )
 
     if authentication && authentication.user.present?
       flash[ :notice] = "Sign in by Facebook Successfull"
       @user = User.find(authentication.user_id)
-      get_fb_info(@user.id)
+      #get_fb_info(@user.id)
       sign_in_and_redirect( :user, @user)
 
     elsif current_user
       current_user.authentications.create!( :provider => omniauth['provider'], :uid => omniauth['uid'])
+      get_fb_info(current_user.id)
       flash[:notice] = "Authentication successful."
       redirect_to authentications_url
 
     else
       user = User.new
       user.apply_omniauth(omniauth)
-
+      user.save
       if user.save
         flash[ :notice] = "Sign up and Sign in by Facebook Successfull"
-        get_fb_info(user.id)
+        #get_fb_info(user.id)
         sign_in_and_redirect( :user, user)
+        get_fb_info(user.id)
       else
         session[ :omniauth] = omniauth.except('extra')
         redirect_to new_user_registration_url

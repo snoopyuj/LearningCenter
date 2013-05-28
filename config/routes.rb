@@ -11,6 +11,7 @@ Elearning::Application.routes.draw do
     match '/course/calculate_similarity' => 'courses#calculate_similarity', :as => 'calculate_similarity'
     match '/course/progress_monitor_by_course' => 'courses#progress_monitor_by_course', :as => 'progress_monitor_by_course'
     match '/course/progress_monitor_by_user' => 'courses#progress_monitor_by_user', :as => 'progress_monitor_by_user'
+    match '/course/print_learning_path' => 'courses#print_learning_path', :as => 'print_learning_path'
 
   #for omniauth
     resources :authentications
@@ -28,9 +29,10 @@ Elearning::Application.routes.draw do
     resources :facebook_activity
     
     post '/facebook_activity/post_wall' => 'facebook_activity#post_wall', :as => 'post_wall'
-    post 'facebook_activity/action_wall' => 'facebook_activity#action_wall', :as => 'action_wall'
-    match 'facebook_activity/get_fb_friends' => 'facebook_activity#get_fb_friends', :as => 'get_fb_friends'
-    match 'facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+    post '/facebook_activity/action_wall' => 'facebook_activity#action_wall', :as => 'action_wall'
+    match '/facebook_activity/get_fb_friends' => 'facebook_activity#get_fb_friends', :as => 'get_fb_friends'
+    match '/facebook_activity/send_data_to_3D' => 'facebook_activity#send_data_to_3D', :as => 'send_data_to_3D'
+    match '/facebook_activity/calculate_friend_proportion' => 'facebook_activity#calculate_friend_proportion', :as => 'calculate_friend_proportion'
 
   #for recommendation system
     resources :recommendation

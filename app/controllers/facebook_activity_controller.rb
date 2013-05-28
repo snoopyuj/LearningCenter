@@ -164,5 +164,30 @@ class FacebookActivityController < ApplicationController
     #render :json => @json_object
     send_data @json_object, :type => "application/json", :disposition => "inline"
   end
+
+  #calculate_friend_proportion
+  def calculate_friend_proportion
+    @result = Array.new()
+    @users = User.all
+
+    @users.each_with_index do |u, index|
+      @friend_proportion_counter = 0
+      #user's friend list
+      u.friend.each do |uf|
+        @users.each do |us|
+          #if the friend of the user is one of system user
+          if uf[ :uid] == us.fb_id
+            @friend_proportion_counter += 1
+          end
+        end
+      end
+
+      @result[index] = { :user_id => u.id, :friend_number => u.friend.length, 
+                         :friend_in_system => @friend_proportion_counter, :system_user_number => @users.length,
+                         :system_user_is_friend_proportion => (@friend_proportion_counter.to_f/@users.length.to_f).to_f
+                       }
+    end
+    render :json => @result
+  end
     
 end

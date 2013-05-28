@@ -119,7 +119,7 @@ class ApplicationController < ActionController::Base
     node.each do |nd|
       #if the node has children
       if nd[ :node_items].is_a? (Array)
-        @temp = check_learning_flag( user_id, course_id, nd[ :node_items] )
+        check_learning_flag( user_id, course_id, nd[ :node_items] )
       else
         @lesson_counter += 1
 
@@ -187,7 +187,7 @@ class ApplicationController < ActionController::Base
         end
       end
     end
-    @user.friend = @friends 
+    @user.friend = @friends
     @user_data = HTTParty.get('https://graph.facebook.com/' + @user.fb_id + '?fields=picture,name' )
     @user.name = @user_data['name']
     @user.picture = @user_data['picture']['data']['url']
