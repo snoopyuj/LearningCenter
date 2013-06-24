@@ -5,12 +5,12 @@
   </h3>
 <% else %>
   <table>
-    <% @result.each do |r| %>
+    <% @result.each_with_index do |r, index| %>
       <tr>
-        <td height="60"><img src='<%=r[ :other_picture]%>'></td>
+        <td height="80"><img src='<%=r[ :other_picture]%>'></td>
         <td>
           user's name: <a href="http://www.facebook.com/<%= r[ :other_id] %>"><%= r[ :other_name] %></a></br>
-          user's similarity: <%= r[ :similarity] %><br>
+          user's similarity: <%= r[ :similarity]%><br>
           <% if r[ :check_friend] == "1" %>
             <b>We are <Blink><font color="ff0000">FRIEND</font>!!</Blink></b>
           <% end %>
@@ -19,4 +19,3 @@
     <% end %>
   </table>
 <% end %>
-

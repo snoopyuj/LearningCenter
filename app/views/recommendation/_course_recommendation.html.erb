@@ -5,12 +5,12 @@
   </h3>
 <% else %>
   <table>
-    <% @result.each do |r| %>
+    <% @result.each_with_index do |r, index| %>
       <tr>
         <td height="150"><%= image_tag "MINE_logo.png", :height => '90', :width => '90' %></td>
         <td>
           <h4>courseName: <%= r[ :courseName] %></h4>
-          Ranking: <%= r[ :confedence] %><br>
+          Value: <%= r[ :confedence] %><br>
 
           <% if !r[ :friend].empty? %>
             <table>
@@ -31,4 +31,3 @@
     <% end %>
   </table>
 <% end %>
-

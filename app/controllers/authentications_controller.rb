@@ -49,7 +49,7 @@ class AuthenticationsController < ApplicationController
     if authentication && authentication.user.present?
       flash[ :notice] = "Sign in by Facebook Successfull"
       @user = User.find(authentication.user_id)
-      #get_fb_info(@user.id)
+      get_fb_info(@user.id)
       sign_in_and_redirect( :user, @user)
 
     elsif current_user
@@ -64,7 +64,7 @@ class AuthenticationsController < ApplicationController
       user.save
       if user.save
         flash[ :notice] = "Sign up and Sign in by Facebook Successfull"
-        #get_fb_info(user.id)
+        get_fb_info(user.id)
         sign_in_and_redirect( :user, user)
         get_fb_info(user.id)
       else
